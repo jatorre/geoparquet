@@ -1,13 +1,12 @@
 # Best Practices for Distributing GeoParquet
 
-> [!IMPORTANT]
->
-> This guide is written for GeoParquet 1.1 and has not been fully updated for GeoParquet 2.0 yet.
-
 This guide aims to encapsulate a number of best practices that the community has
 started to align on for making 'good' GeoParquet files, especially for distribution
 of data. Parquet gives users lots of different options, and the defaults of various
 libraries are different and usually not optimized for geospatial data.
+
+For step-by-step examples of applying these recommendations in specific tools (GDAL/OGR, DuckDB, gpio, and others), see the
+companion [Tools for Distributing GeoParquet](distributing-geoparquet-tools.md) guide.
 
 ## tl;dr Recommendations
 
@@ -15,8 +14,9 @@ Later sections will go deep into the reasoning and nuances behind these options,
 just looking to be sure you get the basics right then this section may be sufficient.
 And if you're building a tool or library then consider these as good defaults.
 
-- Use zstd for compression, and set the compression level to 15.
-- Be sure to include the [bbox covering](https://github.com/opengeospatial/geoparquet/blob/v1.1.0/format-specs/geoparquet.md#bbox-covering-encoding), and use GeoParquet version 1.1.
+- Use zstd for compression, at compression level 15 or higher — go as high as you have time for.
+- Use GeoParquet 2.0, which stores geometries in the native Parquet `GEOMETRY`/`GEOGRAPHY` types,
+  or GeoParquet 1.1 with the [bbox covering](https://github.com/opengeospatial/geoparquet/blob/v1.1.0/format-specs/geoparquet.md#bbox-covering-encoding) for efficient spatial access.
 - Spatially order the data within the file.
 - Set the maximum row group size between 50,000 and 150,000 per row.
 - If the data is larger than ~2 gigabytes consider spatially partitioning the files.
@@ -35,32 +35,40 @@ better compression makes for faster downloads.
 decompression times are pretty constant with `zstd`, so if you're distributing data then it makes a lot of sense to spend
 a bit more time up to do a higher compression level. Then downloads will go faster, but it won't take clients longer
 to decompress. Many tools default to one of the lowest compression levels, indeed the core Apache Arrow library that
-many tools use defaults to 1. So our recommendation is generally to increase the compression level, particularly if you're
-making data for distribution. But don't bother to go all the way to 22 - the consensus seems to be that the levels 17 and
-above take _way_ longer, but the size gains are less than one percent. There is more research needed on this topic, but
-the current recommendation is to aim for something between 11 and 16.
+many tools use defaults to 1. So our recommendation is to use at least level 15, and generally to go as high as you have time
+for, particularly if you're making data for distribution. The one caveat is that the highest levels have steeply diminishing
+returns - the consensus is that levels 17 and above take _way_ longer while the size gains are less than one percent - so going
+all the way to 22 is rarely worth it. But since clients pay no penalty on decompression, if compression time isn't a concern
+it's nice to push it as high as you can.
 
-### bbox covering
+### Efficient spatial access
 
-GeoParquet 1.1 included a couple new features that help with spatial indexing and querying. The easiest one to use is the
-bbox covering, which adds a column called `bbox` that contains the bounding box of each geometry as a native Parquet 'struct'
-of four values. This enables Parquet readers to quickly filter rows based on the bounding box, and thus greatly increasing
-the performance of spatial queries. The bbox column by itself is not sufficient to speed up spatial queries - for that
-you'll need to be sure to follow the next two recommendations. But be sure to include it. It is possible for some tools to
-make use of the bbox column even if the GeoParquet version is not 1.1, but it's best to actually distribute the files with
-GeoParquet 1.1 to ensure all tools know they can use the bbox column.
+In GeoParquet 2.0 the geometry column is stored using the native Parquet
+[`GEOMETRY`/`GEOGRAPHY`](https://github.com/apache/parquet-format/blob/master/Geospatial.md) logical types. Parquet writes
+[geospatial statistics](https://github.com/apache/parquet-format/blob/master/Geospatial.md#geospatial-statistics) for these
+columns — most importantly a bounding box for each column chunk (row group). Readers use these statistics to quickly skip any
+row group whose bounding box does not intersect a query's area of interest, which greatly increases the performance of spatial
+queries. This is the same kind of speedup that the GeoParquet 1.1 `bbox` covering provided, but it comes built in to the
+geometry column, so **you no longer need to add a separate `bbox` column**.
 
-The other new feature is the Native geometry encodings, based on GeoArrow. Using these will enable the same types of speed
-ups as the bbox covering, but will store the data more efficiently. Parquet readers will be able to use the min/max statistics
-directly from the geometry column, instead of needing the bbox column. For points this will be a big win, since the bbox
-for a point adds some overhead. But we do not yet recommend using the native encodings, since the tool support
-isn't yet extensive enough to be sure that most clients will understand them. But as the ecosystem matures this will
-be a great option.
+Dropping the `bbox` column also makes files smaller. The 1.1 covering added a Parquet `struct` of four values to every row; for
+point datasets that overhead is especially large, since the four-value box is bigger than the point it describes. With the native
+geospatial statistics you get efficient spatial filtering and a smaller file.
+
+As with the `bbox` column, these statistics only help if the data is spatially ordered and the row groups are sized sensibly —
+see the next two sections. Statistics are per row group, so the row group is the unit at which a reader can skip data spatially;
+see [Further Discussion: page-level spatial statistics](#page-level-spatial-statistics) for ongoing exploration of finer-grained pruning.
+
+> [!NOTE]
+> The earlier [`bbox` covering](https://github.com/opengeospatial/geoparquet/blob/v1.1.0/format-specs/geoparquet.md#bbox-covering-encoding)
+> from GeoParquet 1.1 remains a valid way to enable spatial filtering, and using 1.1 is recommended if you need to support a
+> wider range of software/versions to read your data. Many tools (GDAL, DuckDB, Hyparquet, geoparquet-io, SedonaDB, QGIS)
+> will work with Parquet native types (and the GeoParquet 2.0 metadata), and eventually 2.0 will be the only recommended way.
 
 ### Spatial Ordering
 
-It is essential to make sure that the data is spatially ordered in some way within the file, in order for the bbox column
-to be used effectively. If the GeoParquet data was converted from a GIS format like GeoPackage or Shapefile then often
+It is essential to make sure that the data is spatially ordered in some way within the file, in order for the row group
+statistics to be used effectively. If the GeoParquet data was converted from a GIS format like GeoPackage or Shapefile then often
 it will already be spatially ordered. One way to check this is to open the file in a GIS tool and see if the data loads
 all the spatial data for an area in chunks, or if data for the whole area appears and continues to load everywhere.
 
@@ -68,7 +76,7 @@ all the spatial data for an area in chunks, or if data for the whole area appear
 
 GeoParquet itself does not have a specific spatial index like other formats (R-tree in GeoPackage, Packed Hilbert R-tree in
 FlatGeobuf). Instead data can be ordered in any way, and then Parquet's Row Group statistics will be used to speed up spatial
-queries (when using bbox covering or native arrow types). Most tools that provide GeoParquet writers have some ability to apply a spatial ordering. The examples below will show how to do this for a few common tools.
+queries (using the native geometry statistics, or a `bbox` covering column). Most tools that provide GeoParquet writers have some ability to apply a spatial ordering. The examples below will show how to do this for a few common tools.
 
 ### Row Group Size
 
@@ -111,7 +119,8 @@ boundaries](https://medium.com/radiant-earth-insights/the-admin-partitioned-geop
 approach that works and is used in the [Google-Microsoft-OSM Buildings - combined by VIDA](https://source.coop/repositories/vida/google-microsoft-osm-open-buildings/description)
 dataset.
 
-See also [Spatial Partitioning in Practice](#spatial-partitioning-in-practice) for more details.
+See the [tools guide](distributing-geoparquet-tools.md#examples-in-common-tools) for how to do this with GDAL, DuckDB, gpio,
+and Sedona.
 
 ### Use STAC metadata
 
@@ -121,11 +130,16 @@ GeoParquet files this should be very simple, just create a collection.json file 
 use `application/vnd.apache.parquet` as the media type. If the GeoParquet is partitioned then you can create individual
 STAC Items linked to from the collection, with each item describing the bounding box of the data in the file.
 
+The [geoparquet-io](distributing-geoparquet-tools.md#geoparquet-io) tool can generate STAC Items and Collections from GeoParquet
+files. You can also write STAC by hand for one or two files, or use a library like [rustac](https://github.com/stac-utils/rustac)
+or [pystac](https://pystac.readthedocs.io/en/stable/) to do it programmatically, populating fields like the bbox from the
+GeoParquet files directly.
+
 ## Usage in Frontend Applications
 
 While GeoParquet excels in analytics use cases, it can also be accessed directly from an object store within frontend applications. This can be a convenient way to losslessly access large geospatial datasets in a way that has more query flexibility than other cloud native geospatial formats like FlatGeobuf. For example, FlatGeobuf only provides an index on the geometry column, whereas GeoParquet has row group statistics on other columns.
 
-When creating a GeoParquet file for use in a frontend application you will need to decide your row group sizes, presenting a tradeoff between frontend query latency and analytics performance. Many frontend applications only wish to display a subset of geospatial data within a bounding box. When using [bbox covering](#bbox-covering), you can use queries against the `bbox` column to skip most irrelevant data. In such cases, you should significantly reduce [row group size](#row-group-size). This is since large row groups increase the amount of irrelevant data (such as points outside the bounding box) that will be fetched when running geospatial queries and in doing so, add additional latency from network transfer.
+When creating a GeoParquet file for use in a frontend application you will need to decide your row group sizes, presenting a tradeoff between frontend query latency and analytics performance. Many frontend applications only wish to display a subset of geospatial data within a bounding box. The native [geospatial statistics](#efficient-spatial-access) on the geometry column let a reader skip any row group that does not intersect the requested bounding box. Because those statistics are per row group, the row group is the unit at which irrelevant data can be skipped, so for this access pattern you should significantly reduce [row group size](#row-group-size). This is since large row groups increase the amount of irrelevant data (such as points outside the bounding box) that will be fetched when running geospatial queries and in doing so, add additional latency from network transfer.
 
 However, small row groups come at a tradeoff. Each row group contains metadata and the more groups the file has, the slower the speed of a full scan of all rows. In other words, small row groups decrease the performance of analytical queries like averages or sums. As such, if you wish to use the same GeoParquet file for both frontend display and analytics, you need to optimize the row group size to strike a balance between the two depending on which use case is most important.
 
@@ -137,7 +151,8 @@ here as reference and as a way to see what it looks like when all the recommenda
 ### Overture
 
 [Overture Maps](https://overturemaps.org/) provides a number of different 'themes' of data in well-organized GeoParquet files, with larger datasets. See [their documentation](https://docs.overturemaps.org/getting-data/) for instructions on how to get
-the data. Their buildings data is more than 2.2 billion rows, and follows all the core recommendations above. The row group
+the data. Their buildings data is more than 2.2 billion rows. It is distributed as GeoParquet 1.1 and follows the core
+recommendations for that version. The row group
 size seems to be around 150,000, and it's zstd compressed with the bbox column, ordered by a GeoHash. The data is partitioned
 spatially, see [this discussion comment](https://github.com/opengeospatial/geoparquet/discussions/251#discussioncomment-11478379)
 for more details.
@@ -156,189 +171,63 @@ Wherobots.
 - [Planet Ag Field Boundaries over EU](https://source.coop/repositories/planet/eu-field-boundaries/description) - needs to be
 spatially partitioned, row group size is 25,000.
 
-## Examples in common tools
+## Tool Examples
 
-This section will discuss what each tool does by default, and show any additional options
-needed to follow the recommendations above. STAC metadata and spatial partitioning will
-have their own sections, since there are fewer tools that can do it, but most any of
-the other tools can be used to prep the data.
+For step-by-step examples of producing GeoParquet that follows these recommendations in GDAL/OGR, DuckDB, gpio and other
+tools — along with tool-specific guidance for STAC metadata and spatial partitioning — see
+[Tools for Distributing GeoParquet](distributing-geoparquet-tools.md).
 
-### GDAL/OGR
+## Further Discussion
 
-Out of the box:
+This section captures topics the community is still actively exploring. They are not part of the recommendations above, but
+are written up here both to explain known limitations and to invite others to help move them forward.
 
-```bash
-ogr2ogr out.parquet in.geojson
-```
+### Page-level spatial statistics
 
-Out of the box GDAL/OGR defaults to snappy compression, with max row group size of 65536.
-Version 3.9 and later will write out the bbox column by default. And there is a built-in
-option to spatially order the data that works by creating a temporary GeoPackage file and
-using its r-tree spatial index. It defaults to false since it can be an intensive operation,
-and GDAL is usually translating from formats that already have spatial indexes.
+As noted under [Efficient spatial access](#efficient-spatial-access), the native Parquet `GEOMETRY`/`GEOGRAPHY` types carry
+geospatial statistics — a bounding box — at the **column chunk (row group)** level only. A reader can therefore skip an entire
+row group whose bounding box does not intersect the query, but once a row group is selected it must read all of that row group's
+pages, even if many of those pages fall entirely outside the area of interest.
 
-### GDAL/OGR with recommended settings
+This is actually a step back from what the GeoParquet 1.1 `bbox` covering column could do. Because that covering is an ordinary
+Parquet `struct` column, it gets a normal Parquet page index (`ColumnIndex`), so its per-page min/max values let a reader prune
+individual **pages** within a row group, not just whole row groups. So while the native geometry statistics remove the need for
+an extra column and make files smaller, the 1.1 `bbox` covering column can still offer finer-grained spatial pruning.
 
-These examples are done with the `ogr2ogr command-line tool, but the layer creation options
-will be the same calling from C or Python.
+How much does page-level pruning matter? [Issue #279](https://github.com/opengeospatial/geoparquet/issues/279) collects some
+early benchmarks. On a ~10 million row Overture buildings file with a selective `intersects` query, page-level pruning roughly
+halved query time (~93 ms using the built-in row-group statistics vs. ~48 ms when pruning to the page level). The benefit grows
+the more selective the query is, and — like the row-group statistics — it depends on the data being spatially ordered so that
+individual pages stay spatially compact.
 
-You can easily control the compression and the max row group size, and the following command is sufficient
-if your source data is already spatially ordered in a file format with a spatial index (like FlatGeobuf or GeoPackage):
+A notable result from the same exploration is that a *specialized* embedded spatial index (an R-tree) gave no measurable
+improvement over a simple "flat" list of per-page bounding boxes. With only a few hundred to a few thousand pages in a typical
+file, brute-force checking each page's bounding box is effectively as fast as querying an index. That suggests the simplest
+possible mechanism — a per-page bounding box — is likely enough, and that a more complex embedded index may not be worth the
+added serialization complexity (every reader and writer would have to agree on its exact binary layout).
 
-```bash
-ogr2ogr out.parquet -lco "COMPRESSION=ZSTD" -lco "MAX_ROW_GROUP_SIZE=100000" in.fgb
-```
+#### How page-level geometry statistics could be added
 
-GDAL 3.12 and above introduces `COMPRESSION_LEVEL` as a [Parquet layer creation option](https://gdal.org/en/latest/drivers/vector/parquet.html#layer-creation-options). So if you're working with that then you should definitely use it (along with the new
-[gdal CLI](https://gdal.org/en/latest/programs/index.html#general), which is used here.
+Two broad approaches have come up:
 
-```bash
-gdal vector convert vegetation.fgb vegetation.parquet --lco compression=zstd --lco compression_level=15
-```
+1. **Add geospatial statistics to Parquet at the page level.** The cleanest long-term solution is to extend the Parquet format
+   itself so that geometry/geography columns can carry a per-page bounding box, mirroring the existing per-row-group geospatial
+   statistics. This could be done either by encoding the bounding box into the existing page `min`/`max` statistics fields (with
+   some care needed around Z and M bounds), or by adding a `GeoStatistics` structure alongside the existing `Statistics` in the
+   page metadata (the Thrift definition). The main concern raised when geospatial statistics were first added to Parquet was the
+   increase in metadata/file size — but this can be designed so that there is no effect unless a writer actually chooses to emit
+   geometry page statistics. The practical path is a note to the [Apache Parquet mailing list](https://parquet.apache.org/community/)
+   with a reproducible benchmark, then a pull request against [parquet-format](https://github.com/apache/parquet-format) editing
+   the Thrift definition, followed by at least two implementations.
 
-If you want to be sure that the output is spatially ordered then you can add `SORT_BY_BBOX=YES`, like in the following example:
+2. **A user-defined index embedded in the file.** Independent of any Parquet spec change, it is possible to pack a custom spatial
+   index into the bytes of a Parquet file that the footer does not reference (for example, just before the footer), as described
+   in [this DataFusion blog post on user-defined Parquet indexes](https://datafusion.apache.org/blog/2025/07/14/user-defined-parquet-indexes/).
+   A reader that knows where to look can use the index, while other readers ignore it and read the file normally. This keeps the
+   file a valid Parquet file, but requires readers and writers to agree on the index format and how to locate it — and, per the
+   benchmark above, a full index does not appear to beat simple page-level bounding boxes.
 
-```bash
-ogr2ogr out.parquet -lco SORT_BY_BBOX=YES -lco "COMPRESSION=ZSTD" in.geojson
-```
-
-This operation writes the data to a GeoPackage as an interim step, so it can take additional storage and computation, especially
-with large files, so it's not enabled by default.
-
-### DuckDB
-
-Out of the box:
-
-```sql
-LOAD spatial;
-COPY (SELECT * FROM geo_table) TO 'out.parquet' (FORMAT 'parquet');
-```
-
-DuckDB will automatically write GeoParquet metadata for any output that contains a geometry column.
-See the [spatial extension](https://duckdb.org/docs/stable/core_extensions/spatial/overview.html)
-is enabled and the table has geometries The default compression is snappy, and the max row group size is 122,880. The bbox column is not currently supported, and it is not spatially ordered by default.
-
-#### DuckDB with recommended settings
-
-You can control the [compression](https://duckdb.org/docs/sql/statements/copy.html#parquet-options), compression level and [row group size](https://duckdb.org/docs/data/parquet/tips.html#selecting-a-row_group_size):
-
-```sql
-COPY (SELECT * FROM geo_table) TO 'out.parquet' (FORMAT 'parquet', COMPRESSION 'zstd', COMPRESSION_LEVEL 15, ROW_GROUP_SIZE '100000');
-```
-
-Interestingly you can also set the row group size in bytes, which would likely be a better way to handle geospatial data since the
-row size can vary so much.
-
-```sql
-COPY (SELECT * FROM geo_table) TO 'out.parquet' (FORMAT 'parquet', COMPRESSION 'zstd', ROW_GROUP_SIZE_BYTES '128mb');
-```
-
-But you can only use that when [`SET preserve_insertion_order = false;`](https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads#the-preserve_insertion_order-option) is enabled, which can help when working with large files, but it's not
-clear if it can mess up spatial ordering.
-
-DuckDB also has functionality to spatially order your data, with the [`ST_Hilbert`](https://duckdb.org/docs/extensions/spatial/functions#st_hilbert)
-function. It is strongly recommended to pass in the bounds of your entire dataset to the function call or the hilbert curve
-won't be built right. The following call will dynamically get the bounds of your dataset, and pass that into the `ST_Hilbert` function.
-
-```sql
-COPY (
-    WITH bbox AS (
-        SELECT ST_Extent(ST_Extent_Agg(geometry))::BOX_2D AS b
-        FROM   geo_table
-    )
-    SELECT   t.*
-    FROM     geo_table AS t
-            CROSS JOIN bbox
-    ORDER BY ST_Hilbert(t.geometry, bbox.b)
-) TO 'out.parquet' (FORMAT 'parquet', COMPRESSION 'zstd', ROW_GROUP_SIZE '100000');
-```
-
-One note with DuckDB is that it doesn't (yet) handle reprojection, and also does not maintain CRS information if you read data into
-it and then write it out, so watch out for that if you're using it for distribution of GeoParquet data. You can add the CRS info
-back in with tools like GDAL and QGIS - it just loses the metadata.
-
-### Additional Tools
-
-We hope to get more discussion of additional tools that follow the same format as DuckDB and OGR/GDAL, especially Sedona, GPQ,
-GeoPandas, QGIS and Esri. But we'll aim to add those later as their own PR's - contributions are very welcome. There is also a project
-currently called [geoparquet-tools](https://github.com/cholmes/geoparquet-tools) that wraps DuckDB in Python and aims to provide all the
-best practices out of the box, along with options to spatially partition. It is still immature (not released to pip, and needs to be
-renamed for that), but can be built from source and the code may be useful to others.
-
-## STAC Metadata
-
-None of the tools to write GeoParquet currently write out STAC Metadata, but that makes sense, as they don't write out other
-metadata formats either. To write STAC metadata you can write it by hand if you've just got one or two GeoParquet files. If you've
-got more then the best option is to use something like [rustac](https://github.com/stac-utils/rustac) or
-[pystac](https://pystac.readthedocs.io/en/stable/) to do it a bit more programmatically. You should be able to populate some
-of the STAC fields like bbox from the GeoParquet files directly.
-
-## Spatial Partitioning in Practice
-
-Most tools don't yet provide any way to do automatic spatial partitioning across files, when you have larger datasets.
-Many people are finding success using DuckDB, since it's a very flexible tool for manipulating data. For some pointers see
-[this gist using kdtree](https://gist.github.com/jwass/8e9b6c16902a05ae66b9688f1a5bb4ff) and
-[this blog post](https://dewey.dunnington.ca/post/2024/partitioning-strategies-for-bigger-than-memory-spatial-data/) that
-discusses the kdtree, along with some other options (r-tree, s2 cells).
-
-The [geoparquet-tools](https://github.com/cholmes/geoparquet-tools) python tool provides a way to add columns that can be partitioned
-on, and then to perform the partitions. Right now it just supports [admin partitions](https://medium.com/radiant-earth-insights/the-admin-partitioned-geoparquet-distribution-59f0ca1c6d96) but [h3 is in a PR](https://github.com/cholmes/geoparquet-tools/pull/3).
-
-The solution that is currently one of the most 'out of the box' option is Sedona, with its
-[Spatial RDD's](https://sedona.apache.org/latest/tutorial/rdd/). The following code takes you through using it to write out partitions by kdtree.
-
-```python
-import glob
-
-from sedona.spark import SedonaContext, GridType
-from sedona.utils.structured_adapter import StructuredAdapter
-from sedona.sql.st_functions import ST_GeoHash
-
-# Configuring this line to do the right thing can be tricky
-# https://sedona.apache.org/latest/setup/install-python/?h=python#prepare-sedona-spark-jar
-config = (
-    SedonaContext.builder()
-    .config("spark.executor.memory", "6G")
-    .config("spark.driver.memory", "6G")
-    .getOrCreate()
-)
-
-sedona = SedonaContext.create(config)
-
-# Read from GeoParquet or some other datasource + do any spatial ops/transformations
-# using Sedona pyspark or SQL
-df = sedona.read.format("geoparquet").load(
-    "/Users/dewey/gh/geoarrow-data/microsoft-buildings/files/microsoft-buildings_point_geo.parquet"
-)
-
-# Create the partitioning. KDBTREE provides a nice balance providing
-# tight (but well-separated) partitions with approximately equal numbers of
-# features in each file. Note that num_partitions is only a suggestion
-# (actual value may differ)
-rdd = StructuredAdapter.toSpatialRdd(df, "geometry")
-rdd.analyze()
-
-# UseWithoutDuplicates() variant to ensure that we don't introduce
-# duplicate features
-rdd.spatialPartitioningWithoutDuplicates(GridType.KDBTREE, num_partitions=8)
-rdd.getPartitioner().getGrids()
-df_partitioned = StructuredAdapter.toSpatialPartitionedDf(rdd, sedona)
-
-# Optional: sort within partitions for tighter rowgroup bounding boxes within files
-df_partitioned = (
-    df_partitioned.withColumn("geohash", ST_GeoHash(df_partitioned.geometry, 12))
-    .sortWithinPartitions("geohash")
-    .drop("geohash")
-)
-
-# Write in parallel directly from each executor node.
-# There are several options for geoparquet writing:
-# https://sedona.apache.org/latest/tutorial/files/geoparquet-sedona-spark/
-df_partitioned.write.format("geoparquet").mode("overwrite").option("compression", "zstd").save(
-    "buildings_partitioned"
-)
-
-# The output files have funny names because Spark writes them this way
-files = glob.glob("buildings_partitioned/*.parquet")
-len(files)
-```
+None of this is currently on anyone's immediate roadmap, and the native row-group statistics are a good default for most
+distribution use cases today. It is written up here so that anyone interested in finer-grained spatial pruning has a starting
+point — if this is something you would use, the discussion in [issue #279](https://github.com/opengeospatial/geoparquet/issues/279)
+is the place to weigh in.
