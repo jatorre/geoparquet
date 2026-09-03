@@ -1,0 +1,17 @@
+[[ats_covering_bbox-column-structure]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/covering/bbox-column-structure
+target:: /req/covering/bbox-column-structure
+test-purpose:: Verify the structure of a bounding box column.
+test-method::
++
+--
+1. Verify that the schema element of the bounding box column is a group field with four or six child fields.
+
+2. If it has four child fields, verify that they are named `xmin`, `ymin`, `xmax`, `ymax`, in that order.
+
+3. If it has six child fields, verify that they are named `xmin`, `ymin`, `zmin`, `xmax`, `ymax`, `zmax`, in that order.
+--
+====

@@ -1,45 +1,81 @@
-# GeoParquet Standard
+# GeoParquet OGC Standard (metanorma source)
 
-The GeoParquet standard is specified in this directory. For the clearest overview of the requirements see [`geoparquet.md`](geoparquet.md). It is the 'latest' version of the specification, and you can see its version in the [Version and Schema](geoparquet.md#version-and-schema) section of the document. If it has `-dev` in the suffix then it is an unreleased version of the standard. For the stable versions view the `geoparquet.md` file in the git tree tagged in [the releases](https://github.com/opengeospatial/geoparquet/releases), for example [v1.0.0/format-specs/geoparquet.md](https://github.com/opengeospatial/geoparquet/blob/v1.0.0/format-specs/geoparquet.md) for version 1.0.0.
+**Status: draft proposal on the `ogc-spec-alignment` branch, for review by the GeoParquet
+maintainers and the OGC GeoParquet SWG. Not final.**
 
-The official OGC GeoParquet standard is also contained in this directory, and it will often lag behind the markdown document. The target version of the GeoParquet standard can be found in the Preface of the [front material document](sections/clause_0_front_material.adoc). The OGC standard is built from the various other documents in this directory. They are `.adoc` files, in the [asciidoc](https://asciidoc.org/) format. They all automatically get built into a single pdf and published at [docs.ogc.org/DRAFTS/24-013.html](https://docs.ogc.org/DRAFTS/24-013.html) by a cron job running on OGC's infrastructure. The 'official' OGC version will be proposed from that draft, and when accepted by the OGC Technical Committee (TC) will become the official 1.0.0 version of the specification.
+This directory contains the OGC-formatted version of the GeoParquet specification, written in
+AsciiDoc for [Metanorma](https://www.metanorma.org/author/ogc/) with the OGC Standard template.
+It restates the community specification for **GeoParquet 2.0.0**
+([`../format-specs/geoparquet.md`](../format-specs/geoparquet.md) and
+[`../format-specs/schema.json`](../format-specs/schema.json)) as OGC requirements with
+identifiers and abstract tests. It does not change the community specification; where the two
+texts differ in wording, [`../docs/ogc/CHANGES.md`](../docs/ogc/CHANGES.md) explains every
+difference so reviewers can check that the meaning is the same.
 
-[Released versions](https://github.com/opengeospatial/geoparquet/releases) of GeoParquet (from the markdown file in this repository) will not be changed when OGC officially releases GeoParquet 1.0.0, so if changes are needed for OGC approval, then the  will be released with a new version number. There will continue to be releases from this repository, which will technically remain 'draft' standards until the OGC TC has officially accepted the next version.
+The community specification is the reference for the GeoParquet community releases. The OGC
+document follows it and will lag behind it; it is what the SWG submits to the OGC Architecture
+Board and to the OGC membership for a vote.
 
-## In this directory
+## Layout
 
-The key files and folders in this directory are as follows:
+| Path | Content |
+| --- | --- |
+| `document.adoc` | Entry file: document attributes (number, edition, editors, status) and the list of included sections. |
+| `sections/clause_0_front_material.adoc` … `clause_5_conventions.adoc` | Preface, abstract, submitters, scope, conformance, normative references, terms, conventions. |
+| `sections/clause_6_core.adoc` | Requirements Class **Core**: prose from `geoparquet.md` with the requirement, recommendation and permission blocks included at the point where the markdown states them. |
+| `sections/clause_7_covering.adoc` | Requirements Class **Bounding Box Covering** (the `covering` member and bounding box columns). Conditional on PR #302 being merged. |
+| `sections/clause_8_implementation_considerations.adoc` | Informative: expectations on readers, version compatibility, GeoParquet 1.x, OGC:CRS84 details. |
+| `sections/annex-a.adoc` | Abstract Test Suite (normative), includes `abstract_tests/ATS_class_*.adoc`. |
+| `sections/annex-b-example.adoc`, `annex-history.adoc`, `annex-bibliography.adoc` | Example metadata, revision history, bibliography. |
+| `requirements/requirements_class_core.adoc`, `requirements_class_covering.adoc` | The two requirements classes, listing their requirements, recommendations and permissions. |
+| `requirements/<class>/req_<name>.adoc` | One file per requirement, identifier `/req/<class>/<name>`. Each starts with a `// Source:` comment pointing at the line of `geoparquet.md` it restates. |
+| `recommendations/<class>/rec_<name>.adoc`, `permissions/<class>/per_<name>.adoc` | One file per recommendation (`/rec/...`) and permission (`/per/...`). |
+| `abstract_tests/ATS_class_<class>.adoc`, `abstract_tests/<class>/ats_<name>.adoc` | One conformance class per requirements class; one abstract test per requirement, identifier `/conf/<class>/<name>`, targeting `/req/<class>/<name>`. |
+| `Gemfile` | For a local (non-Docker) Metanorma installation. |
 
-* [`geoparquet.md`](geoparquet.md) - The latest specification overview, which may run ahead of the standard. It consists of narrative explanations and clear tables for people to get a clear idea of all that needs to be done to implement GeoParquet.
-* [`schema.json`](schema.json) - The definitive schema that validates GeoParquet metadata to ensure complaince with the standard.
-* [`compatible-parquet.md`](compatible-parquet.md) - A set of guidelines for those would like to produce geospatial Parquet data but are using tools that are not yet fully implementing GeoParquet metadata. Not an official part of the standard.
-* [`document.adoc`](document.adoc) - The main standard document which sets the order of the other sections. This is less 'human-readable', as it is designed to be an official 'standard', with specific language to detail testable requirements.
-* [`sections/`](sections/) - Each section of the standard document is a separate document in this folder. The order in the official standard is determined by the `document.adoc`. Most of these documents are boilerplate.
-* [`sections/clause_6_normative_text.adoc`](sections/clause_6_normative_text.adoc) - The main text of the standard. Similar to the
-`geoparquet.md`, but links to the definitive `requirements`.
-* [`requirements/`](requirements/) - directory for requirements and requirement classes to be referenced in the normative text.
-* [`abstract_tests/`](abstract_tests/) - the Abstract Test Suite comprising one test for every requirement.
+Identifiers are relative to `http://www.opengis.net/spec/geoparquet/2.0`.
 
-There are a number of other folders, that are currently all empty, but are potentially used for the standard. These are retained for potential future use, but all are currently empty (except for template readmes)
+## Building
 
-* [`figures`](figures/) - Any figures needed for the standard go in this folder.
-* [`images`](images/) - Image files for graphics in the standard go in this folder. Image files for figures go in the `figures` directory. Only place in here images not used in figures (e.g., as parts of tables, as logos, etc.)
-* [`code`](code/) - Sample code to accompany the standard, if desired
+With Docker (recommended; this is what CI runs):
 
-More information about the document template is [here](https://github.com/opengeospatial/templates/tree/master/standard#readme).
+```sh
+cd ogc
+docker run --rm -v "$PWD":/metanorma metanorma/metanorma \
+  metanorma compile --agree-to-terms -t ogc -x xml,html document.adoc
+```
 
-## Authoring the Specification
+This produces `document.html`, `document.xml`, `document.presentation.xml` and an error report
+`document.err.html` (all git-ignored). Add `pdf` to `-x` for a PDF; the first PDF build downloads
+fonts and takes several minutes. Network access is needed for Metanorma to fetch the OGC, ISO and
+IETF references through Relaton.
 
-The GeoParquet markdown file will naturally be a bit 'ahead' of the OGC standard defined in asciidocs. For now the way to author the spec is to just focus on pull requests to the markdown file. The 'community' release will be cut from the markdown file, and then the 'official' OGC release will follow. A volunteer will update all the asciidoc text and requirements to reflect the release, and submit to OGC for official voting.
+With a local Ruby installation: `bundle install` then
+`metanorma compile --agree-to-terms -t ogc -x xml,html document.adoc`.
 
-This may shift in the future, requiring PR's to the markdown to also update the asciidocs, but for now there will just be 'batch' processing of the changes.
+CI: `.github/workflows/ogc-document.yml` builds the document on every push and pull request that
+touches `ogc/**`, fails on Metanorma errors (severity 0 and 1 in `document.err.html`), and
+uploads the HTML, XML and error report as a workflow artifact.
 
-An authoring guide for the metanorma / asciidoc editing of the standard is available at [metanorma.org](https://www.metanorma.org/author/ogc/authoring-guide/).
+## Editing conventions
 
-## Building the OGC standard
+* One normative statement of `geoparquet.md` maps to exactly one requirement, recommendation or
+  permission here, and every requirement has exactly one abstract test. Keep this one-to-one
+  mapping when the community specification changes.
+* Requirements use SHALL; the community specification uses MUST. Do not paraphrase beyond what
+  is needed to make a statement testable; record any wording change in `docs/ogc/CHANGES.md`.
+* Do not fix problems of the community specification here. Record them in
+  `docs/ogc/spec-issues.md` and raise them as issues against `format-specs/`.
+* Requirements that no existing validator (GPQ, GDAL `validate_geoparquet.py`,
+  `geoparquet-testing`) checks are listed in `docs/ogc/gaps.md`.
+* The authoring guide for OGC documents in Metanorma is at
+  https://www.metanorma.org/author/ogc/authoring-guide/.
 
-A local version of the OGC standard can be created by running `docker run -v "$(pwd)":/metanorma -v ${HOME}/.fontist/fonts/:/config/fonts  metanorma/metanorma  metanorma compile --agree-to-terms -t ogc -x html document.adoc`.
+## Provenance
 
-## Auto built document
-
-A daily built document is available at [OGC Document DRAFTS](https://docs.ogc.org/DRAFTS/).
+The 1.0 version of this document was migrated to the OGC template by Gobe Hobona (OGC) in
+PR #206 / #224, with contributions from Matthias Mohr and Chris Holmes, and partially updated
+by Chris Holmes in PR #247. Those branches are merged into this one; the present files are a
+rewrite for GeoParquet 2.0 on top of that work. The Phase 1 audit of the earlier drafts is in
+[`../docs/ogc/AUDIT.md`](../docs/ogc/AUDIT.md) and the statement-by-statement crosswalk in
+[`../docs/ogc/crosswalk.md`](../docs/ogc/crosswalk.md).

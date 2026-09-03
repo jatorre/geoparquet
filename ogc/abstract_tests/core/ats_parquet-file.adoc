@@ -1,0 +1,15 @@
+[[ats_core_parquet-file]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/core/parquet-file
+target:: /req/core/parquet-file
+test-purpose:: Verify that the file is an Apache Parquet file.
+test-method::
++
+--
+1. Open the file with a Parquet reader that implements <<parquet-format>>.
+
+2. Verify that the file footer, schema and row groups can be read without error.
+--
+====

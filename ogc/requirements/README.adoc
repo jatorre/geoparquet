@@ -1,15 +1,15 @@
-This folder contains requirements description.
+This folder contains the requirements classes, requirements, recommendations and permissions
+of the GeoParquet OGC Standard.
 
-Each file is a single requirement. The naming convention for these files is:
+* `requirements_class_<class>.adoc` declares a requirements class (`/req/<class>`) and lists its
+  provisions.
+* `<class>/req_<name>.adoc` is one requirement with identifier `/req/<class>/<name>`.
+  Recommendations (`/rec/...`) live in `../recommendations/<class>/`, permissions (`/per/...`)
+  in `../permissions/<class>/`.
+* Each file starts with a `// Source:` comment giving the section and line of
+  `format-specs/geoparquet.md` (version 2.0.0) that the provision restates.
+* Every requirement has exactly one abstract test with the same `<class>/<name>` in
+  `../abstract_tests/`.
 
-"REQn.adoc" where "n" corresponds to the requirement number. Numbers should have preceding zeros appropriate for the total number of requirements in the project (e.g., the first requirement could be REQ001 if less than 1000 requirements are anticipated).
-
-The requirement files are integrated into the main document as links.
-
-The requirement is expressed according to this pattern:
-
-NOTE: for each requirement, there should be a corresponding Abstract Test in the "abstract_tests" folder.
-
-NOTE: sample code may reference one or more requirements and should state which requirements are included in the code by adding the following line to the Extended Description:
-
-"#REQS: reqnum1,reqnum2,...reqnumn"
+The files are included into the main document from `../sections/clause_6_core.adoc` and
+`../sections/clause_7_covering.adoc` with `include::../requirements/<class>/req_<name>.adoc[]`.

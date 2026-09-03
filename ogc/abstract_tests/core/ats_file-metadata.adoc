@@ -1,0 +1,19 @@
+[[ats_core_file-metadata]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/core/file-metadata
+target:: /req/core/file-metadata
+test-purpose:: Verify the required file-level members of the GeoParquet metadata.
+test-method::
++
+--
+1. Verify that the `version` member is present and equal to the string `2.0.0`.
+
+2. Verify that the `primary_column` member is present and is a string of length greater than zero.
+
+3. Verify that the `columns` member is present, is a JSON object, and has at least one member.
+
+4. Verify that the value of `primary_column` is equal to the name of one of the members of `columns`.
+--
+====

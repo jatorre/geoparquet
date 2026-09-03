@@ -1,0 +1,15 @@
+[[ats_core_wkb]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/core/wkb
+target:: /req/core/wkb
+test-purpose:: Verify that all geometry values are valid WKB.
+test-method::
++
+--
+1. For each geometry column, read every non-null value.
+
+2. Verify that each value can be decoded as WKB according to <<parquet-geospatial>>, and that the decoded geometry type is one of the seven geometry types listed in /req/core/geometry-types.
+--
+====

@@ -1,35 +1,49 @@
-= GeoParquet Specification
+= GeoParquet Standard
 :doctype: standard
+:docsubtype: encoding
 :encoding: utf-8
 :lang: en
-:status: draft
+:status: swg-draft
 :committee: technical
-:draft: 3.0
-:external-id: http://www.opengis.net/doc/IS/geoparquet/1.0
+:draft: 0.1
+:external-id: http://www.opengis.net/doc/IS/geoparquet/2.0
 :docnumber: 24-013
-:received-date: 2029-03-30
-:issued-date: 2029-03-30
-:published-date: 2029-03-30
+:received-date: 2026-09-03
+:issued-date: 2026-09-03
+:published-date: 2026-09-03
 :fullname: Chris Holmes
 :fullname_2: Tim Schaub
 :fullname_3: Joris Van den Bossche
 :fullname_4: Kyle Barron
 :fullname_5: Javier de la Torre
-:docsubtype: Interface
-:keywords: ogcdoc, OGC document, geoparquet, parquet, columnar, cloud
-:submitting-organizations: Planet; CARTO
+:keywords: ogcdoc, OGC document, GeoParquet, Parquet, columnar, cloud-native, geospatial, encoding
+:submitting-organizations: Planet Labs PBC; CARTO
 :mn-document-class: ogc
-:mn-output-extensions: xml,html,doc,pdf
+:mn-output-extensions: xml,html
 :local-cache-only:
 :data-uri-image:
-:pdf-uri: ./document.pdf
-:xml-uri: ./document.xml
-:doc-uri: ./document.doc
-:edition: 1.0.0
+:edition: 2.0.0
 
 ////
-Make sure to complete each included document
+EDITORIAL STATUS (remove before submission)
+
+This is a proposal prepared on the ogc-spec-alignment branch. It restates the GeoParquet
+2.0.0 community specification (format-specs/geoparquet.md, format-specs/schema.json) as an
+OGC Standard. Open items that the SWG has to confirm:
+
+* docnumber 24-013 was assigned by OGC in 2024 for the 1.0 draft; confirm with OGC staff
+  that it is still reserved for GeoParquet.
+* received/issued/published dates are placeholders (date of drafting).
+* editors (fullname..fullname_5) and submitting organizations are carried over from PR #224
+  and have not been confirmed by the SWG; the Contributors table in clause 0 is empty.
+* Clause 7 (Bounding Box Covering) depends on pull request #302 being merged into the
+  community specification.
+* The normative reference to the GeoParquet JSON Schema points at the v2.0.0 release URL,
+  which exists only once 2.0.0 is tagged.
+
+See docs/ogc/CHANGES.md for every place where the wording here differs from the markdown.
 ////
+
 include::sections/clause_0_front_material.adoc[]
 
 include::sections/clause_1_scope.adoc[]
@@ -42,19 +56,16 @@ include::sections/clause_4_terms_and_definitions.adoc[]
 
 include::sections/clause_5_conventions.adoc[]
 
-include::sections/clause_6_normative_text.adoc[]
+include::sections/clause_6_core.adoc[]
 
+include::sections/clause_7_covering.adoc[]
 
-////
-add or remove annexes after "A" as necessary
-////
+include::sections/clause_8_implementation_considerations.adoc[]
 
 include::sections/annex-a.adoc[]
 
-////
-Revision History should be the last annex before the Bibliography
-Bibliography should be the last annex
-////
+include::sections/annex-b-example.adoc[]
+
 include::sections/annex-history.adoc[]
 
 include::sections/annex-bibliography.adoc[]

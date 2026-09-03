@@ -1,0 +1,8 @@
+// Source: geoparquet.md 2.0.0, Coordinate axis order (L118)
+[[req_core_axis-order]]
+[requirement]
+====
+[%metadata]
+identifier:: /req/core/axis-order
+part:: The coordinates of each point in a WKB value SHALL be ordered (x, y[, z][, m]), where x is easting or longitude and y is northing or latitude, irrespective of the axis order defined by the coordinate reference system, as specified in <<parquet-geospatial>>.
+====
