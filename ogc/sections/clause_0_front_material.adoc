@@ -4,14 +4,8 @@ This document is the OGC Standard for version 2.0.0 of GeoParquet. GeoParquet is
 
 GeoParquet 2.0 is built on the geospatial logical types `GEOMETRY` and `GEOGRAPHY` and the geospatial statistics that Apache Parquet added in format version 2.11 (March 2025). The Parquet format specification is therefore a normative reference of this Standard: this Standard does not redefine the encoding of geometries, the syntax of the Parquet `crs` parameter or the edge interpolation algorithms, but requires their use and specifies the additional GeoParquet metadata and the consistency between that metadata and the Parquet schema.
 
-////
-*OGC Declaration*
-////
-
-Attention is drawn to the possibility that some of the elements of this document may be the subject of patent rights. The Open Geospatial Consortium shall not be held responsible for identifying any or all such patent rights.
-
-Recipients of this document are requested to submit, with their comments, notification of any relevant patent claims or other intellectual property rights of which they may be aware that might be infringed by any implementation of the standard set forth in this document, and to provide supporting documentation.
-
+// Metanorma inserts the OGC patent declaration ("Attention is drawn to the possibility...")
+// automatically in the front matter; it is not repeated here.
 
 [abstract]
 == Abstract
@@ -26,7 +20,9 @@ Apache Parquet is a standardized open-source columnar storage format. GeoParquet
 All questions regarding this submission should be directed to the editor or the submitters:
 
 ////
-TO BE CONFIRMED BY THE SWG. Carried over from PR #224.
+Carried over from PR #224. The chair considers these names correct. Question for
+@cholmes and the SWG: should other submitters be listed (for example the organizations
+of the 2.0 authors)?
 ////
 
 .Submitters
@@ -40,10 +36,10 @@ TO BE CONFIRMED BY THE SWG. Carried over from PR #224.
 == Contributors
 
 ////
-TO BE CONFIRMED BY THE SWG. Suggested: the maintainers of the community specification
-(Joris Van den Bossche, Kyle Barron, Dewey Dunnington, Jia Yu, Even Rouault, Matthias Mohr,
-Gobe Hobona) and the authors of the GeoParquet 2.0 changes. Names have not been added
-without their agreement.
+Placeholder. Question for @cholmes and the SWG: who should be listed here? Candidates are
+the maintainers of the community specification and the authors of the GeoParquet 2.0
+changes, plus the people who did the 1.0 OGC migration (Gobe Hobona, Matthias Mohr).
+Names are not added without the person's agreement.
 ////
 
 Additional contributors to this Standard include the following:

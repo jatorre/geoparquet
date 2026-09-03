@@ -1,8 +1,0 @@
-// Source: geoparquet.md 2.0.0, Overview (implicit: GeoParquet is a profile of Apache Parquet)
-[[req_core_parquet-file]]
-[requirement]
-====
-[%metadata]
-identifier:: /req/core/parquet-file
-part:: A GeoParquet file SHALL be an Apache Parquet file conforming to <<parquet-format>>.
-====

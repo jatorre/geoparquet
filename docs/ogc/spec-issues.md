@@ -1,39 +1,66 @@
 # Inconsistencies found in the community specification while drafting the OGC document
 
-**For the SWG chair to raise as GitHub issues. Nothing here has been changed in
-`format-specs/`.** Source: `format-specs/geoparquet.md` and `schema.json` at `v2.0.0-rc.1` (`main`
-at `21eba45` differs only by PR #301) unless a version is given; PR #302 for the covering text.
-Line numbers refer to `geoparquet.md` at that tag. Crosswalk row IDs refer to
-[`crosswalk.md`](crosswalk.md).
+**For the SWG chair. Nothing here has been changed in `format-specs/`.** Source:
+`format-specs/geoparquet.md` and `schema.json` at `v2.0.0-rc.1` (`main` at `21eba45` differs only by
+PR #301) unless a version is given; PR #302 for the covering text. Line numbers refer to
+`geoparquet.md` at that tag. Crosswalk row IDs refer to [`crosswalk.md`](crosswalk.md).
+
+The OGC document restates the community specification and does not resolve any of these on its
+own. Where the OGC text needed to choose a reading, the choice is recorded here and in
+[`CHANGES.md`](CHANGES.md), and the corresponding statement is a NOTE rather than a requirement.
 
 Severity: **H** = a conforming file can be read two ways or a validator must guess; **M** =
 wording that does not carry the obligation everyone enforces; **L** = editorial.
 
+## A. Worth fixing before the 2.0.0 tag (cheap, editorial, affect the released text)
+
 | ID | Sev | Where | Issue | Suggested resolution |
 | --- | --- | --- | --- | --- |
-| SI-1 | L | 1.1.0 L21 vs L102–L153 | "A geometry MUST NOT be a group field or nested in a group" contradicts the 1.1 native `point` encoding, which is a group. Already removed on `main` by PR #234; the released 1.1.0 text is contradictory. | No action for 2.0. Consider an erratum note in the 1.1.0 release notes. |
-| SI-2 | M | L38–L40 (FM-3) | That `primary_column` must name one of the members of `columns` is only implied. GPQ, GDAL, `geoparquet-testing` and PR #247 all enforce it; the OGC draft states it (/req/core/file-metadata D). | Add "The value MUST be one of the keys of `columns`." to the `primary_column` row. |
-| SI-3 | L | `geoparquet-testing/bad_data/manifest.json` | `primary-column-not-in-columns` is labelled `expected_failure: schema_validation_error`, but JSON Schema cannot express that constraint (the file validates). | Relabel (e.g. `primary_column_mismatch`) in the corpus. |
-| SI-4 | M | L40, L46 (CM-1) | "Each key is the name of a geometry column in the table" is descriptive; both validators fail files whose `columns` names a column that does not exist. | Add a MUST for the reverse direction, or state that unknown keys are an error. |
+| SI-9 | H | L80 | The text says the Parquet "crs customization" section "permits several forms … inline PROJJSON, an `<authority>:<code>` string, `srid:<identifier>`, and `projjson:<key_name>`" and links `apache-parquet-format-2.12.0/Geospatial.md`. That tag lists only `srid:` and `projjson:` under "CRS Customization"; inline PROJJSON and `<authority>:<code>` appear in `Geospatial.md` on parquet-format `master` (unreleased text). A reader following the link finds no basis for the two RECOMMENDED forms. | Link the parquet-format revision that contains the wider list once released, or quote the text GeoParquet relies on. The OGC document pins 2.12.0 and inherits this problem. |
+| SI-11 | M | L146 vs L180 (OR-4) | Orientation section: RECOMMENDED counterclockwise "if `edges` is `\"spherical\"`"; edges section: "if `edges` is not `\"planar\"`". The second was updated for the geodesic values, the first was not. | Align both on "not planar" (the OGC draft uses "not planar"). |
+
+Both are one-line edits. Everything else below can wait for a 2.0.x or 2.1 discussion.
+
+## B. After the release
+
+| ID | Sev | Where | Issue | Suggested resolution |
+| --- | --- | --- | --- | --- |
+| SI-12 | H | L148–L180; Parquet `GEOGRAPHY.algorithm` (ED-2) | Nothing ties `edges` to the logical type: `GEOMETRY` implies planar edges and `GEOGRAPHY` carries an `algorithm` whose Parquet default is `SPHERICAL`, while the GeoParquet default for `edges` is `planar`. A `GEOGRAPHY` column with no `edges` member therefore has spherical edges per Parquet and planar edges per GeoParquet. `crs` and `geometry_types` have explicit "MUST match" rules; `edges` has none. | Add: `edges` MUST be consistent with the logical type (`planar` ⇔ `GEOMETRY`; other values ⇔ `GEOGRAPHY` with the same `algorithm`), and state which default applies when `edges` is absent on a `GEOGRAPHY` column. |
+| SI-2 | M | L38–L40 (FM-3) | That `primary_column` must name one of the members of `columns` is only implied (it follows from "each geometry column MUST be included in `columns`"). GPQ, GDAL, `geoparquet-testing` and PR #247 all enforce it. The OGC draft states the derivation in a NOTE, not as a requirement. | Add "The value MUST be one of the keys of `columns`." to the `primary_column` row. |
+| SI-4 | M | L40, L46 (CM-1) | "Each key is the name of a geometry column in the table" is descriptive; both validators fail files whose `columns` names a column that does not exist. The OGC draft mentions this in a NOTE only. | Add a MUST for the reverse direction, or state that unknown keys are an error. |
+| SI-7 | M | L133 (GT-4) | "It is expected that this field is strictly correct" is the only sentence carrying the most-tested data rule (types present must be listed). Not RFC 2119. The OGC draft writes it as SHALL (see CHANGES.md). | Replace with "If `geometry_types` is not empty, it MUST list the geometry type (with dimension suffix) of every geometry in the column." |
+| SI-16 | M | PR #302, bbox covering encoding and Bounding Box Columns | The requirements on a bounding box column cover its schema (group, names, order, type, repetition, nesting) but the statement that its values are the bounding box of the geometry in the same row is descriptive. A column full of zeros would satisfy every MUST. The OGC draft describes the values in prose with a NOTE. | Add a MUST for the values. |
+| SI-17 | M | L135 (GT-5) | "These MUST match the corresponding Geospatial Types in the Parquet statistics" is unconditional, but `GeospatialStatistics` are optional in Parquet and are per column chunk, so the sentence is unsatisfiable when statistics are absent and ambiguous when chunks differ. The OGC draft conditions the requirement on statistics being present. | "Where geospatial statistics are present, the types they record MUST be consistent with `geometry_types`." |
+| SI-18 | M | L5, L62, L89 vs L32 | The Overview says 2.0 "provides guidance for geospatial tools to implement Parquet Geometry and Geography types" and L62 says "Writing that metadata is itself optional — a writer MAY emit only the native Parquet geospatial types", while L32 says a GeoParquet file MUST include the `geo` key and L89 says such a file "is not conformant GeoParquet 2.0". Reconcilable, but readers of L62 may conclude the metadata is optional in GeoParquet. | State once, in the Overview, that a GeoParquet file is one that carries the `geo` metadata, and that native-only files are readable by GeoParquet readers but are not GeoParquet files. |
 | SI-5 | L | L42; `schema.json` (CM-4) | Additional implementation-specific fields are allowed "at this level" (file metadata) only; the schema also allows them inside column metadata objects and `scripts/test_json_schema.py` has a valid case for it. | Say explicitly whether additional members are allowed in column metadata objects. |
-| SI-6 | L | 1.1.0 L102–L153 (ENC-8) | The native encodings never say that every value in a `"point"` column is a Point, etc. GDAL enforces it. | 1.1 only; note for an erratum. |
-| SI-7 | M | L133 (GT-4) | "It is expected that this field is strictly correct" is the only sentence carrying the most-tested data rule (types present must be listed). Not RFC 2119. | Replace with "If `geometry_types` is not empty, it MUST list the geometry type (with dimension suffix) of every geometry in the column." |
-| SI-8 | L | `schema.json` L38; L210; GPQ | PROJJSON schema versions drift: `schema.json` references v0.7, the OGC:CRS84 example declares `$schema` v0.5, GPQ defaults to v0.6. | Update the example to v0.7 (harmless, but reviewers notice). |
-| SI-9 | H | L80 | The text says the Parquet "crs customization" section "permits several forms … inline PROJJSON, an `<authority>:<code>` string, `srid:<identifier>`, and `projjson:<key_name>`" and links `apache-parquet-format-2.12.0/Geospatial.md`. That tag lists only `srid:` and `projjson:` under "CRS Customization"; inline PROJJSON and `<authority>:<code>` appear in `Geospatial.md` on parquet-format `master` (unreleased text). A reader following the link finds no basis for the two RECOMMENDED forms. | Link the parquet-format revision that contains the wider list once released, or quote the text GeoParquet relies on. The OGC document pins 2.12.0 and inherits this problem (G7 in CHANGES.md). |
+| SI-8 | L | `schema.json` L38; L210; GPQ | PROJJSON schema versions drift: `schema.json` references v0.7, the OGC:CRS84 example declares `$schema` v0.5, GPQ defaults to v0.6. | Update the example to v0.7. |
 | SI-10 | L | L106 (EP-1) | "To be unambiguous, the coordinates must always be qualified with the epoch" reads as an obligation but is background; PR #224 turned it into a SHALL. | Rephrase ("need to be qualified") or make it a MUST if that is intended. |
-| SI-11 | M | L146 vs L180 (OR-4) | Orientation section: RECOMMENDED counterclockwise "if `edges` is `\"spherical\"`"; edges section: "if `edges` is not `\"planar\"`". The second was updated for the geodesic values, the first was not. | Align both on "not planar". The OGC draft uses "not planar". |
-| SI-12 | H | L148–L180; Parquet `GEOGRAPHY.algorithm` (ED-2) | Nothing ties `edges` to the logical type: `GEOMETRY` implies planar edges and `GEOGRAPHY` carries an `algorithm` whose Parquet default is `SPHERICAL`, while the GeoParquet default for `edges` is `planar`. A `GEOGRAPHY` column with no `edges` member therefore has spherical edges per Parquet and planar edges per GeoParquet. `crs` and `geometry_types` have explicit "MUST match" rules; `edges` has none. | Add: `edges` MUST be consistent with the logical type (`planar` ⇔ `GEOMETRY`; other values ⇔ `GEOGRAPHY` with the same `algorithm`), and state which default wins when `edges` is absent on a `GEOGRAPHY` column. |
 | SI-13 | L | PR #302 covering text; `schema.json` | "The keys of the covering object MUST be a supported encoding" but the schema has no `additionalProperties: false` on `covering`, so unknown keys validate. | Add `additionalProperties: false` to `covering`, or drop the MUST. |
 | SI-14 | L | `schema.json` `columns.minProperties`, `patternProperties ".+"` | At least one geometry column and non-empty column names exist only in the schema; the prose never says a GeoParquet file has at least one geometry column. | One sentence in the Metadata section. |
-| SI-15 | L | `schema.json` at tag `v2.0.0-rc.1` | `version` is `const "2.0.0"` although the tag is `v2.0.0-rc.1`; GDAL's validator special-cases it. | Harmless once 2.0.0 is tagged; note in the release process. |
-| SI-16 | M | PR #302, bbox covering encoding and Bounding Box Columns | The requirements on a bounding box column cover its schema (group, names, order, type, repetition, nesting) but the statement that its values are the bounding box of the geometry in the same row is descriptive ("captures … the bounding box of the geometry for every row"; "the values follow the GeoJSON specification"). A column full of zeros would satisfy every MUST. The OGC draft adds /req/covering/bbox-column-values. | Add a MUST for the values. |
-| SI-17 | M | L135 (GT-5) | "These MUST match the corresponding Geospatial Types in the Parquet statistics" is unconditional, but `GeospatialStatistics` are optional in Parquet and are per column chunk, so the sentence is unsatisfiable when statistics are absent and ambiguous when chunks differ. | "Where geospatial statistics are present, the types they record MUST be a subset of / consistent with `geometry_types`." The OGC draft conditions the requirement on statistics being present. |
-| SI-18 | M | L5, L62, L89 vs L32 | The Overview says 2.0 "provides guidance for geospatial tools to implement Parquet Geometry and Geography types" and L62 says "Writing that metadata is itself optional — a writer MAY emit only the native Parquet geospatial types", while L32 says a GeoParquet file MUST include the `geo` key and L89 says such a file "is not conformant GeoParquet 2.0". The three statements are reconcilable (native-only files are valid Parquet but not GeoParquet) but readers of L62 may conclude the metadata is optional in GeoParquet. | State once, in the Overview, that a GeoParquet file is one that carries the `geo` metadata, and that native-only files are readable by GeoParquet readers but are not GeoParquet files. |
 | SI-19 | L | L56, L106–L108; corpus `epoch-on-unsupported-crs` | The spec does not forbid `epoch` on a static CRS; the corpus treats it as `epoch_unsupported`. | Decide: either "MUST NOT be present unless `crs` is dynamic", or relabel the fixture as a warning case. |
 | SI-20 | L | L112 vs 1.1.0 L94 | 2.0 dropped "(using codes for 3D geometry types in the [1001,1007] range)" without saying that XYM (2001–2007) and XYZM (3001–3007) codes are now allowed; the only trace is the `geometry_types` suffix list. | One sentence in the encoding section pointing to the Parquet WKB integer codes. |
-| SI-21 | L | README.md | The link to `https://docs.ogc.org/DRAFTS/24-013.html` is dead (issue #277). | Remove or point at the built artefact once the CI build publishes one. |
+| SI-22 | L | L5 (Overview) | The specification never states that a GeoParquet file is an Apache Parquet file; it is assumed throughout. The OGC draft says so in prose with a NOTE, not as a requirement. | One sentence in the Overview or Metadata section, if the SWG wants an explicit anchor for the Parquet reference. |
+| SI-23 | L | L112 | The WKB reference links `portal.ogc.org/files/?artifact_id=18241`, which is OGC 06-103r3 (Simple Feature Access 1.2.0, 2006). Parquet `Geospatial.md`, which GeoParquet 2.0 defers to for the encoding, cites 06-103r4 (1.2.1, artifact 25355). The WKB bytes are identical, but the two documents point at different editions. | Link 06-103r4 / artifact 25355. The OGC draft cites 06-103r4. |
+| SI-15 | L | `schema.json` at tag `v2.0.0-rc.1` | `version` is `const "2.0.0"` although the tag is `v2.0.0-rc.1`; GDAL's validator special-cases it. | Harmless once 2.0.0 is tagged; note in the release process. |
+| SI-21 | L | README.md | The link to `https://docs.ogc.org/DRAFTS/24-013.html` is dead (issue #277). | Remove, or point at the CI-built artefact. |
 
-## Validator defects noticed (not spec issues; for the tool maintainers)
+## C. GeoParquet 1.x only (errata, no action for 2.0)
+
+| ID | Sev | Where | Issue |
+| --- | --- | --- | --- |
+| SI-1 | L | 1.1.0 L21 vs L102–L153 | "A geometry MUST NOT be a group field or nested in a group" contradicts the 1.1 native `point` encoding, which is a group. Already removed on `main` by PR #234; the released 1.1.0 text is contradictory. |
+| SI-6 | L | 1.1.0 L102–L153 (ENC-8) | The native encodings never say that every value in a `"point"` column is a Point, etc. GDAL enforces it. |
+
+## D. Test corpus (for `geoparquet/geoparquet-testing`)
+
+| ID | Where | Issue |
+| --- | --- | --- |
+| SI-3 | `bad_data/manifest.json` | `primary-column-not-in-columns` is labelled `expected_failure: schema_validation_error`, but JSON Schema cannot express that constraint (the file validates). Relabel, e.g. `primary_column_mismatch`. |
+
+## E. Validator defects noticed (to report to the tool maintainers, not spec issues)
+
+These belong to the GPQ and GDAL projects. They are listed so the chair can pass them on; they
+are not GeoParquet issues.
 
 | Tool | Defect | Rows |
 | --- | --- | --- |
@@ -45,4 +72,4 @@ wording that does not carry the obligation everyone enforces; **L** = editorial.
 | GPQ | `GeometryOrientation` checks `orb.Polygon` only; MultiPolygon rings are not checked. | OR-2 |
 | GPQ | optional-field rules return on the first column that lacks the field, so later columns are not checked (multi-geometry-column files). | CRS-1, OR-1, ED-1, BB-2, EP-1 |
 | GPQ | `GeometryTypes` accepts 2D data against `Point Z` (orb has no Z). | GT-4 |
-| geoparquet-testing | `primary-column-not-in-columns` mislabelled as `schema_validation_error` (SI-3); `wkb-with-srid-prefix` passes GDAL because OGR accepts EWKB. | FM-3, ENC-1 |
+| geoparquet-testing | `wkb-with-srid-prefix` passes GDAL because OGR accepts EWKB. | ENC-1 |

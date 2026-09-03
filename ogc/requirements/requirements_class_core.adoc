@@ -5,7 +5,6 @@
 [%metadata]
 identifier:: http://www.opengis.net/spec/geoparquet/2.0/req/core
 subject:: GeoParquet file
-requirement:: /req/core/parquet-file
 requirement:: /req/core/geo-metadata
 requirement:: /req/core/file-metadata
 requirement:: /req/core/column-metadata

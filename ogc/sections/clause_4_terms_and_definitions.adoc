@@ -1,6 +1,6 @@
 == Terms and definitions
 
-This document uses the terms defined in OGC Policy Directive 49, which is based on the ISO/IEC Directives, Part 2, Rules for the structure and drafting of International Standards. In particular, the word "shall" (not "must") is the verb form used to indicate a requirement to be strictly followed to conform to this Standard, and the word "should" is used to indicate a recommendation.
+// Metanorma inserts the OGC boilerplate on terms and on the use of "shall" automatically.
 
 NOTE: The GeoParquet community specification uses the keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY" and "OPTIONAL" as described in <<rfc2119>>. In this document "MUST" of the community specification is rendered as "SHALL".
 

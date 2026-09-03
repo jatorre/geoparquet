@@ -14,6 +14,6 @@ test-method::
 
 3. Verify that the `columns` member is present, is a JSON object, and has at least one member.
 
-4. Verify that the value of `primary_column` is equal to the name of one of the members of `columns`.
+NOTE: That the value of `primary_column` is one of the member names of `columns` follows from /req/core/column-metadata (the primary geometry column is a geometry column, and every geometry column is described in `columns`); it is verified by step 2 of /conf/core/column-metadata.
 --
 ====

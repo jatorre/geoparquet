@@ -12,5 +12,4 @@ requirement:: /req/covering/bbox-column-structure
 requirement:: /req/covering/bbox-column-type
 requirement:: /req/covering/bbox-column-repetition
 requirement:: /req/covering/bbox-column-nesting
-requirement:: /req/covering/bbox-column-values
 ====

@@ -6,8 +6,8 @@ community specification. Read-only audit; no PR branch was modified.**
 > **Phase 2 decisions (chair, 2026-09-03) and outputs.** Target version **2.0.0**; a single
 > standardization target (the file), so reader expectations are informative; the covering class is
 > drafted from PR #302 and marked conditional. The 2.0 metanorma document is in
-> [`../../ogc/`](../../ogc/) (two requirements classes: Core with 21 requirements, 6
-> recommendations, 3 permissions; Bounding Box Covering with 7 requirements; 28 abstract tests).
+> [`../../ogc/`](../../ogc/) (two requirements classes: Core with 20 requirements, 6
+> recommendations, 3 permissions; Bounding Box Covering with 6 requirements; 26 abstract tests).
 > Companion files: [`CHANGES.md`](CHANGES.md) (wording differences), [`spec-issues.md`](spec-issues.md)
 > (defects in the community spec to raise as issues), [`gaps.md`](gaps.md) (validator coverage per
 > test). Section 7 below describes the five-class structure proposed before that decision; the

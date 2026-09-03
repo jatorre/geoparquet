@@ -19,10 +19,9 @@ part of it or checks it with a known defect; **none** = no tool checks it.
 
 | Test | GPQ | GDAL | Schema | Corpus fixture | Coverage | What is missing |
 | --- | --- | --- | --- | --- | --- | --- |
-| parquet-file | implicit (open fails) | implicit (`is not a Parquet file`) | — | — | full | — |
 | geo-metadata | `RequiredGeoKey`, `RequiredMetadataType` | `'geo' … missing`, `not valid JSON`, schema validation | yes (step 3) | `missing-geo-metadata`, `geo-invalid-json`, `geo-invalid-utf8` | full | GPQ does not run the JSON Schema (step 3). |
-| file-metadata | `RequiredVersion` (any string), `RequiredPrimaryColumn`, `RequiredColumns` (allows `{}`), `PrimaryColumnInLookup` | version/primary/columns presence, primary ∈ columns, schema | `required`, `const`, `minLength`, `minProperties` | `missing-version`, `version-unknown`, `missing-primary-column`, `missing-columns`, `primary-column-not-in-columns` | full (GDAL) | GPQ does not check the version value nor `minProperties`. |
-| column-metadata | reverse direction only (`missing geometry column`) | reverse direction only (`not found in the Parquet fields`); `encoding`/`geometry_types` via schema | `required [encoding, geometry_types]` | — | **partial** | Step 2 (every `GEOMETRY`/`GEOGRAPHY` column is listed) is checked by nobody. Needs a fixture with an unlisted logical-typed column. |
+| file-metadata | `RequiredVersion` (any string), `RequiredPrimaryColumn`, `RequiredColumns` (allows `{}`) | version/primary/columns presence, schema | `required`, `const`, `minLength`, `minProperties` | `missing-version`, `version-unknown`, `missing-primary-column`, `missing-columns` | full (GDAL) | GPQ does not check the version value nor `minProperties`. `primary_column` ∈ `columns` is a NOTE (derived), checked by GPQ `PrimaryColumnInLookup`, GDAL and the corpus (`primary-column-not-in-columns`). |
+| column-metadata | reverse direction only (`missing geometry column`) | reverse direction only (`not found in the Parquet fields`); `encoding`/`geometry_types` via schema | `required [encoding, geometry_types]` | — | **partial** | Step 2 (every `GEOMETRY`/`GEOGRAPHY` column is listed) is checked by nobody. Needs a fixture with an unlisted logical-typed column. The reverse direction (listed keys exist) is a NOTE, not a requirement, but is what both validators actually check. |
 | geometry-column-type | `GeometryDataType` (BYTE_ARRAY), `RequiredColumnEncoding` (`WKB`) | `encoding` via schema | `const "WKB"` | corpus self-test `test_geometry_files_have_geometry_logical_type` only | **partial** | Step 3 (logical type present) is not checked by GPQ or GDAL. Needs a fixture: 2.0 metadata on a plain `BYTE_ARRAY` column. |
 | geometry-column-nesting | `GeometryUngrouped` | — | — | — | full (GPQ) | GDAL: none. No negative fixture. |
 | geometry-column-repetition | `GeometryRepetition` | — | — | — | full (GPQ) | GDAL: none. No negative fixture. |
@@ -51,18 +50,18 @@ part of it or checks it with a known defect; **none** = no tool checks it.
 | bbox-column-type | — | — | — | — | **none** | Fixture: `INT32` children; mixed `FLOAT`/`DOUBLE`. |
 | bbox-column-repetition | — | — | — | — | **none** | Fixture: `required` bbox on `optional` geometry; bbox present where geometry is null. |
 | bbox-column-nesting | — | — | — | — | **none** | Fixture: bbox group nested in a struct. |
-| bbox-column-values | — | — | — | — | **none** | Fixture: bbox values that do not match the geometry. |
 
 The Bounding Box Covering class currently has **no data-level test coverage anywhere**. The 1.1
 `covering` was validated by no community tool either; it is the largest gap if PR #302 merges.
+Note that the *values* of a bounding box column are not a requirement (SI-16), so no test exists for them.
 
 ## Summary
 
-| | Core (21 tests) | Covering (7 tests) |
+| | Core (20 tests) | Covering (6 tests) |
 | --- | --- | --- |
-| full | 10 | 0 |
-| partial | 6 | 2 |
-| none / heuristic only | 5 | 5 |
+| full | 9 | 0 |
+| partial | 7 | 2 |
+| none / heuristic only | 4 | 4 |
 
 Recommendations and permissions have no abstract tests by design (`/rec/core/*`, `/per/core/*`);
 metanorma reports them as "no corresponding Conformance test" warnings, which CI tolerates.
@@ -71,7 +70,7 @@ metanorma reports them as "no corresponding Conformance test" warnings, which CI
 
 1. `geoparquet-testing`: add negative fixtures for the "none" rows above (unlisted logical-typed
    column, missing logical type, `geometry_types` vs statistics mismatch, CRS semantic mismatch,
-   8-element and antimeridian `bbox`, MultiPolygon orientation, and the seven covering cases),
+   8-element and antimeridian `bbox`, MultiPolygon orientation, and the six covering cases),
    and relabel `primary-column-not-in-columns` (SI-3).
 2. GDAL `validate_geoparquet.py`: fix the 8-element `bbox` assertion, the `Point Z` mapping and
    the M/ZM types; add checks for the logical type, root/repetition and `geospatial_types`

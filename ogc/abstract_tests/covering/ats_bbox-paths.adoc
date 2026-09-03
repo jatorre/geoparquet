@@ -14,6 +14,6 @@ test-method::
 
 3. Verify that the first string is identical in all four arrays.
 
-4. Verify that a column with that name exists at the root of the Parquet schema, and run the tests /conf/covering/bbox-column-structure, /conf/covering/bbox-column-type, /conf/covering/bbox-column-repetition, /conf/covering/bbox-column-nesting and /conf/covering/bbox-column-values on it.
+4. Verify that a column with that name exists at the root of the Parquet schema, and run the tests /conf/covering/bbox-column-structure, /conf/covering/bbox-column-type, /conf/covering/bbox-column-repetition and /conf/covering/bbox-column-nesting on it.
 --
 ====

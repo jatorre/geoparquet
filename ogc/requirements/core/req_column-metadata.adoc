@@ -5,6 +5,5 @@
 [%metadata]
 identifier:: /req/core/column-metadata
 part:: Every geometry column of the file SHALL be described by a member of the `columns` object whose name is the name of that geometry column.
-part:: Every member name of the `columns` object SHALL be the name of a geometry column present in the Parquet schema of the file.
 part:: Every member of the `columns` object SHALL be a JSON object (the column metadata object) containing an `encoding` member and a `geometry_types` member.
 ====

@@ -4,5 +4,5 @@
 ====
 [%metadata]
 identifier:: /req/core/orientation-rings
-part:: If the `orientation` member of a column metadata object is present, the vertices of the exterior ring of every Polygon in the geometry column, including Polygons that are members of a MultiPolygon or of a GeometryCollection, SHALL be ordered counterclockwise, and the vertices of every interior ring SHALL be ordered clockwise.
+part:: If the `orientation` member of a column metadata object is present, all vertices of exterior polygon rings in the geometry column SHALL be ordered in the counterclockwise direction and all vertices of interior rings SHALL be ordered in the clockwise direction.
 ====

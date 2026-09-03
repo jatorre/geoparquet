@@ -1,8 +1,0 @@
-// Source: geoparquet.md (PR #302), bbox covering encoding and Bounding Box Columns (values described without RFC 2119 keyword; see CHANGES.md)
-[[req_covering_bbox-column-values]]
-[requirement]
-====
-[%metadata]
-identifier:: /req/covering/bbox-column-values
-part:: The value of a bounding box column in a row SHALL be the bounding box of the geometry in the same row, with `xmin`, `ymin`, `xmax`, `ymax` (and `zmin`, `zmax`) holding the minimum and maximum coordinate values of that geometry in the coordinate reference system of the geometry column.
-====

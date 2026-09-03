@@ -11,7 +11,6 @@ abstract-test:: /conf/covering/bbox-column-structure
 abstract-test:: /conf/covering/bbox-column-type
 abstract-test:: /conf/covering/bbox-column-repetition
 abstract-test:: /conf/covering/bbox-column-nesting
-abstract-test:: /conf/covering/bbox-column-values
 ====
 
 ==== Keys
@@ -37,7 +36,3 @@ include::./covering/ats_bbox-column-repetition.adoc[]
 ==== Bbox column nesting
 
 include::./covering/ats_bbox-column-nesting.adoc[]
-
-==== Bbox column values
-
-include::./covering/ats_bbox-column-values.adoc[]

@@ -5,7 +5,6 @@
 identifier:: http://www.opengis.net/spec/geoparquet/2.0/conf/core
 target:: http://www.opengis.net/spec/geoparquet/2.0/req/core
 classification:: Target Type:GeoParquet file
-abstract-test:: /conf/core/parquet-file
 abstract-test:: /conf/core/geo-metadata
 abstract-test:: /conf/core/file-metadata
 abstract-test:: /conf/core/column-metadata
@@ -27,10 +26,6 @@ abstract-test:: /conf/core/bbox-extent
 abstract-test:: /conf/core/bbox-crs
 abstract-test:: /conf/core/media-type
 ====
-
-==== Parquet file
-
-include::./core/ats_parquet-file.adoc[]
 
 ==== Geo metadata
 

@@ -19,9 +19,9 @@ The Core requirements class applies to every GeoParquet file. It covers:
 [[clause_parquet_file]]
 === Parquet file
 
-A GeoParquet file is an Apache Parquet file. Everything that this Standard does not specify (the file structure, encodings, compression, statistics, the semantics of logical types) is specified by <<parquet-format>>.
+A GeoParquet file is an Apache Parquet file (<<parquet-format>>). Everything that this Standard does not specify (the file structure, encodings, compression, statistics, the semantics of logical types) is specified by <<parquet-format>>, and the requirements of this Standard are stated in terms of that specification: a file that is not a valid Parquet file cannot satisfy them.
 
-include::../requirements/core/req_parquet-file.adoc[]
+NOTE: The community specification does not state "a GeoParquet file is a Parquet file" as a requirement, and neither does this Standard; it is the premise of every requirement in this clause.
 
 [[clause_geometry_columns]]
 === Geometry columns
@@ -95,6 +95,8 @@ include::../requirements/core/req_geo-metadata.adoc[]
 
 include::../requirements/core/req_file-metadata.adoc[]
 
+NOTE: The value of `primary_column` is necessarily one of the member names of `columns`: the primary geometry column is a geometry column, and every geometry column is described in `columns` (<<req_core_column-metadata>>). The community specification does not state this separately; validators check it directly.
+
 At this level, additional implementation-specific members (for example the name of the library that wrote the file) may be present; readers are expected to ignore members they do not understand (see <<clause_implementation>>).
 
 include::../permissions/core/per_additional-file-metadata.adoc[]
@@ -120,6 +122,8 @@ Each geometry column in the dataset is described by a member of the `columns` ob
 |===
 
 include::../requirements/core/req_column-metadata.adoc[]
+
+NOTE: The community specification describes each member name of `columns` as "the name of a geometry column in the table" but does not state as a requirement that every member corresponds to an existing column. Existing validators reject a `columns` member that names a column absent from the Parquet schema. Making this a requirement has been proposed to the GeoParquet community; this Standard does not add it.
 
 [[clause_geometry_types]]
 ==== geometry_types

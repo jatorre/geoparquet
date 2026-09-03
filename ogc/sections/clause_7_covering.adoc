@@ -69,4 +69,6 @@ include::../requirements/covering/req_bbox-column-repetition.adoc[]
 
 include::../requirements/covering/req_bbox-column-nesting.adoc[]
 
-include::../requirements/covering/req_bbox-column-values.adoc[]
+The values of a bounding box column are the bounding box of the geometry in the same row: `xmin`, `ymin`, `xmax`, `ymax` (and `zmin`, `zmax`) hold the minimum and maximum coordinate values of that geometry, in the coordinate reference system of the geometry column, following <<rfc7946>>, section 5, for geographic coordinate reference systems.
+
+NOTE: The community specification describes the content of a bounding box column ("the bounding box of the geometry for every row") without an RFC 2119 keyword, so this Standard does not state a requirement on the values. Making it a requirement has been proposed to the GeoParquet community.
