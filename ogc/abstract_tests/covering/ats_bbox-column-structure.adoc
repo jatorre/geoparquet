@@ -13,5 +13,7 @@ test-method::
 2. If it has four child fields, verify that they are named `xmin`, `ymin`, `xmax`, `ymax`, in that order.
 
 3. If it has six child fields, verify that they are named `xmin`, `ymin`, `zmin`, `xmax`, `ymax`, `zmax`, in that order.
+
+NOTE: Partly implemented by `gpio validate` `covering_bbox_structure_*` (four children named `xmin`, `ymin`, `xmax`, `ymax`). Field order and the `zmin`/`zmax` pairing are not checked.
 --
 ====

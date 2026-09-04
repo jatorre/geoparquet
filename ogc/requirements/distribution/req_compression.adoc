@@ -1,0 +1,8 @@
+// Source: distributing-geoparquet.md, tl;dr (L17) and Compression (L25-L42); gpio check compression
+[[req_distribution_compression]]
+[requirement]
+====
+[%metadata]
+identifier:: /req/distribution/compression
+part:: Every column chunk of every geometry column SHALL be compressed with the ZSTD codec.
+====

@@ -11,5 +11,7 @@ test-method::
 1. For each geometry column whose column metadata object has a `bbox` member, decode every non-null geometry value and compute its coordinate range in each dimension.
 
 2. Verify that every coordinate range lies within the corresponding range given by `bbox`, taking into account the antimeridian representation of <<rfc7946>>, section 5, when xmin > xmax.
+
+NOTE: Implemented by GPQ `all geometries must fall within the bbox metadata` (X/Y, antimeridian aware) and by `gpio validate` `bbox_contains_data_*` (sample; reads the first four elements, which is incorrect for a 6-element bbox; no antimeridian handling).
 --
 ====

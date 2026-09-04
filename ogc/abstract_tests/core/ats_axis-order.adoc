@@ -13,5 +13,7 @@ test-method::
 2. Verify that the first coordinate of each point is the longitude (easting) and the second is the latitude (northing), for example by checking that first coordinates lie within [-180, 180] and second coordinates within [-90, 90] and that the geometries fall within the `bbox`, if present.
 
 NOTE: For coordinate reference systems with an easting-northing axis order this test is trivially satisfied.
+
+NOTE: Heuristic only: `gpio validate` `coordinates_valid_for_crs_*` and `geography_coordinate_bounds_*`; GDAL bbox range checks.
 --
 ====

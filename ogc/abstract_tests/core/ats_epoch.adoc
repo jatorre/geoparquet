@@ -9,5 +9,7 @@ test-method::
 +
 --
 1. For each column metadata object that has an `epoch` member, verify that its value is a JSON number.
+
+NOTE: Implemented by `gpio validate` check `epoch_valid_*` (which additionally warns when the CRS is static) and by the JSON Schema.
 --
 ====

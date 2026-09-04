@@ -1,0 +1,15 @@
+[[ats_distribution_compression]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/distribution/compression
+target:: /req/distribution/compression
+test-purpose:: Verify the compression codec of geometry columns.
+test-method::
++
+--
+1. For every geometry column and every row group, read the `codec` of the column chunk and verify that it is `ZSTD`.
+
+NOTE: Implemented by `gpio check compression` and `gpio check optimization` (factor 5). The compression level cannot be read back from the file, so only the codec is tested.
+--
+====

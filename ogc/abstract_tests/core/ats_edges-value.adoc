@@ -9,5 +9,7 @@ test-method::
 +
 --
 1. For each column metadata object that has an `edges` member, verify that its value is one of `planar`, `spherical`, `vincenty`, `thomas`, `andoyer`, `karney`.
+
+NOTE: Implemented by `gpio validate` check `edges_valid_*` (2.0 vocabulary) and by the JSON Schema. GPQ accepts `planar`/`spherical` only.
 --
 ====

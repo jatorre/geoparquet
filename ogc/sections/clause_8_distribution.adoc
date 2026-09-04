@@ -1,0 +1,73 @@
+[[clause_distribution]]
+== Requirements Class Cloud-Optimized Distribution
+
+////
+PROPOSAL, NOT YET AGREED BY THE COMMUNITY. This requirements class is a "profile" in the sense
+suggested by Chris Holmes on PR #304: a citable definition of a well-distributed GeoParquet file,
+so that downstream specifications (for example Portolan) can require "GeoParquet conforming to the
+Cloud-Optimized Distribution class" instead of restating the best practices.
+
+Its source is the community guide format-specs/distributing-geoparquet.md, which is written as
+advice, and the checks of geoparquet-io (`gpio check spatial|row-group|compression|bbox|optimization`),
+which are the only executable definition of "a good GeoParquet file" today. Turning advice into
+requirements means choosing thresholds; every threshold below is geoparquet-io's and is marked
+for confirmation. The class is optional and Core does not depend on it, so it can be changed or
+dropped without affecting the approval of Core. See docs/ogc/CHANGES.md, section "Requirements
+Class Cloud-Optimized Distribution", for the source of every statement.
+////
+
+=== Overview
+
+include::../requirements/requirements_class_distribution.adoc[]
+
+Apache Parquet gives writers many options, and the defaults of most libraries are not tuned for geospatial data. The GeoParquet community has converged on a small set of practices that make a GeoParquet file efficient to distribute and to query directly from object storage: compress with ZSTD, order the rows spatially, keep row groups in a size range that lets readers skip data, and rely on the geospatial statistics that the Parquet `GEOMETRY` and `GEOGRAPHY` types provide. This requirements class states those practices as testable requirements on a single file, so that a file can be said to conform to them, and states the dataset-level practices that cannot be tested on a single file as recommendations.
+
+This requirements class is optional. It depends on the Core requirements class (<<rc_core>>) and, when a file declares a bounding box covering, on the Bounding Box Covering requirements class (<<rc_covering>>). A file that does not claim conformance to this class is still a GeoParquet file.
+
+NOTE: The practices in this class are those that `geoparquet-io` (`gpio check`) verifies. Each abstract test in <<ats_distribution>> names the corresponding `gpio check` command.
+
+=== Geospatial statistics
+
+Parquet writes geospatial statistics for `GEOMETRY` and `GEOGRAPHY` columns (<<parquet-geospatial>>), most importantly a bounding box for each column chunk (row group). Readers use these statistics to skip any row group whose bounding box does not intersect a query's area of interest. The statistics are optional in Parquet; a well-distributed file has them for every row group.
+
+include::../requirements/distribution/req_geospatial-statistics.adoc[]
+
+=== Spatial ordering
+
+Row-group statistics only help when the rows of the file are spatially ordered, so that each row group covers a compact area. GeoParquet does not prescribe an ordering method; Hilbert curve, GeoHash, S2 or R-tree based orderings all work. The requirement is stated on the outcome: consecutive row groups mostly do not overlap.
+
+include::../requirements/distribution/req_spatial-order.adoc[]
+
+NOTE: The 30 percent threshold is the one used by `gpio check spatial`. For files whose statistics are missing, `gpio` falls back to a sampling method that compares the average distance between consecutive features with that between random features; that method is not part of this requirement.
+
+=== Row group size
+
+If row groups are too large a reader cannot skip much data; if they are too small the file metadata grows and full scans slow down. The community recommends 50 000 to 150 000 rows as a starting point, or 64 MB to 256 MB per row group when the writer allows sizing by bytes. The requirement admits the wider range that published datasets use in practice; the recommendation states the preferred range.
+
+include::../requirements/distribution/req_row-group-size.adoc[]
+
+include::../recommendations/distribution/rec_row-group-rows.adoc[]
+
+=== Compression
+
+ZSTD achieves a better compression ratio than the usual default, Snappy, with similar decompression speed, and decompression time is nearly independent of the compression level. Producers distributing data are advised to spend the extra time on a high level; readers pay no penalty.
+
+include::../requirements/distribution/req_compression.adoc[]
+
+include::../recommendations/distribution/rec_compression-level.adoc[]
+
+NOTE: The compression level is not recorded in the Parquet file, so only the codec can be tested.
+
+=== Bounding box column
+
+With native geospatial statistics a separate bounding box column is usually unnecessary, but it is still useful for page-level pruning and for readers that predate the statistics (<<rc_covering>>). A bounding box column that no `covering` entry points at costs file size and cannot be used by any reader.
+
+include::../requirements/distribution/req_bbox-column-declared.adoc[]
+
+=== Dataset-level recommendations
+
+The following practices concern a dataset rather than a single file and cannot be verified on a file alone. They are recommendations of this class.
+
+include::../recommendations/distribution/rec_spatial-partitioning.adoc[]
+
+include::../recommendations/distribution/rec_stac-metadata.adoc[]

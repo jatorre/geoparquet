@@ -1,0 +1,21 @@
+[[ats_distribution_spatial-order]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/distribution/spatial-order
+target:: /req/distribution/spatial-order
+test-purpose:: Verify that the rows are spatially ordered.
+test-method::
++
+--
+1. Read the bounding box from the geospatial statistics of each row group of the primary geometry column, in file order.
+
+2. For each pair of consecutive row groups, determine whether the two bounding boxes overlap.
+
+3. Verify that fewer than 30 percent of the consecutive pairs overlap.
+
+NOTE: A file with a single row group passes trivially.
+
+NOTE: Implemented by `gpio check spatial` (row-group bounding-box overlap method for files with statistics; sampling method otherwise) and `gpio check optimization` (factor 3).
+--
+====

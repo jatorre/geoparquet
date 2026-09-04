@@ -15,5 +15,7 @@ test-method::
 3. Verify that the column is annotated with the `GEOMETRY` or the `GEOGRAPHY` logical type.
 
 4. Verify that the `encoding` member of the column metadata object is the string `WKB`.
+
+NOTE: Implemented by `gpio validate` checks `geometry_byte_array_*`, `native_geo_type_present_*`, `v2_native_types_*` and `encoding_valid_*`.
 --
 ====

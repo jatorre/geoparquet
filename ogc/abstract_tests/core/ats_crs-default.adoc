@@ -13,5 +13,7 @@ test-method::
 2. Decode a sample of geometry values and verify that the first coordinates lie within [-180, 180] and the second coordinates within [-90, 90].
 
 NOTE: Conformance to the WGS 84 datum itself cannot be verified from the file alone.
+
+NOTE: Heuristic only: `gpio validate` `coordinates_valid_for_crs_*` and `v2_crs_consistency_*` (absent metadata `crs` against an unset Parquet `crs`).
 --
 ====

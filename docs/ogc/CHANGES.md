@@ -19,6 +19,7 @@ file. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswal
 | G6 | The Bounding Box Covering class (Clause 7) is taken from PR #302, not from the rc.1 text. | The chair expects #302 to merge; the clause is marked conditional in an editorial comment and can be removed as a unit. |
 | G7 | Normative references to Apache Parquet are pinned to format version 2.12.0 (`LogicalTypes.md`, `Geospatial.md`), the version the markdown links. | Dated references are required for normative use. See SI-9 for a version problem in one of those links. |
 | G8 | Terms and definitions (Clause 4) are new: bounding box column, column metadata object, covering, geometry column, GeoParquet file, GeoParquet metadata, primary geometry column, WKB; CRS, dynamic CRS and epoch from ISO 19111. | OGC template requirement. Definitions were written to match how the markdown uses the words. |
+| G9 | Every abstract test ends with a NOTE naming the `geoparquet-io` (`gpio validate` / `gpio check`) check that implements it, or stating that no tool does. | Review criterion from the maintainers (Chris Holmes, PR #304): the OGC assertions must line up with the tool the community runs for 2.0. Informative; does not change the test method. |
 
 ## Requirements Class Core
 
@@ -66,6 +67,32 @@ file. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswal
 | /req/covering/bbox-column-repetition | idem | "A row MUST contain a bounding box value if and only if the row contains a geometry value" kept; the following sentence ("In cases where the geometry is optional and a row does not contain a geometry value, the row MUST NOT contain a bounding box value") is not repeated. | It is the "only if" half of the previous sentence. |
 | /req/covering/bbox-column-nesting | idem | None. | |
 | (no requirement) bounding box column values, Clause 7.4 | bbox covering encoding §, Bounding Box Columns § | Prose plus a NOTE: the values of a bounding box column are described ("the bounding box of the geometry in the same row"), **not** required, because the markdown describes this ("captures … the bounding box of the geometry for every row"; "the values follow the GeoJSON specification") without a keyword. An earlier draft had /req/covering/bbox-column-values; removed to stay derivative. | Consequence, recorded as SI-16: the class constrains only the schema of the column, not its content, so a covering with wrong values conforms until the community adds a MUST. |
+
+## Requirements Class Cloud-Optimized Distribution (PROPOSAL, Clause 8)
+
+**This class is not a restatement of `geoparquet.md`.** It was requested by Chris Holmes on PR #304
+as a "profile" of a well-distributed GeoParquet file that downstream specifications (Portolan) can
+cite. Its sources are `format-specs/distributing-geoparquet.md` (the community best-practices guide,
+written as advice, line numbers below refer to `main` at `21eba45`) and the checks of
+`geoparquet-io` (`gpio check`), which supply the thresholds. Turning advice into SHALL statements is
+new normative content; every threshold is `gpio`'s and is marked for confirmation by the community.
+The class is optional, Core does not depend on it, and it can be dropped as a unit.
+
+| Identifier | Source | Statement and provenance |
+| --- | --- | --- |
+| /req/distribution/geospatial-statistics | guide L46–L60; `gpio validate` `native_geo_stats_*`; `gpio check optimization` factor 2 | Every column chunk of every geometry column SHALL carry `GeospatialStatistics` with a bounding box. The guide describes the statistics as what Parquet "writes"; Parquet itself makes them optional. The requirement is `gpio`'s "geo bbox stats present" factor. |
+| /req/distribution/spatial-order | guide L20, L68–L79; `gpio check spatial` (`_OVERLAP_RATIO_THRESHOLD = 0.3`) | Rows SHALL be spatially ordered such that fewer than 30 percent of consecutive row-group pairs of the primary geometry column have overlapping bounding boxes. The guide says "spatially order the data" without a metric; the metric and threshold are `gpio`'s bbox-stats method. `gpio`'s sampling fallback (consecutive vs random distance ratio below 0.5) is mentioned in a NOTE, not required. |
+| /req/distribution/row-group-size | guide L21 (tl;dr: 50 000–150 000), L92 (body: 50 000–200 000), L98 (64–256 MB); `gpio check row-group` (`assess_row_count`: 10 000–200 000 accepted; `check optimization`: 10 000–50 000 optimal) | Row groups SHALL have between 10 000 and 200 000 rows, except a single-row-group file below 64 MB. The sources disagree with each other (SI-24); the requirement takes the widest range any of them accepts and the recommendation /rec/distribution/row-group-rows takes the guide's tl;dr range plus the 64–256 MB byte range. |
+| /req/distribution/compression | guide L17, L25–L42; `gpio check compression` (`passed = compression == "ZSTD"`) | Geometry column chunks SHALL use ZSTD. The guide's "level 15 or higher" is /rec/distribution/compression-level because the level is not stored in the file. |
+| /req/distribution/bbox-column-declared | guide (PR #302) "When to add a bbox covering column"; `gpio check bbox` | A root-level group with `xmin`/`ymin`/`xmax`/`ymax` children SHALL be declared in `covering`. `gpio check bbox` fails an undeclared bbox column ("costs file size and cannot be used by any reader"). |
+| /rec/distribution/compression-level | guide L17, L38 | SHOULD be 15 or higher. Verbatim intent. |
+| /rec/distribution/row-group-rows | guide L21, L92, L98 | SHOULD be 50 000–150 000 rows or 64–256 MB. See SI-24. |
+| /rec/distribution/spatial-partitioning | guide L22, L101–L123 | Datasets above roughly 2 GB SHOULD be spatially partitioned. Dataset-level; untestable on one file, hence a recommendation. |
+| /rec/distribution/stac-metadata | guide L23, L125–L136 | SHOULD be described with STAC Collection/Item metadata. Dataset-level. `gpio check stac` validates the STAC JSON but that is outside the file. |
+
+Not carried into the class: the guide's exemplar datasets (L146–L172), the frontend-application
+discussion (L138–L144) and the page-level statistics discussion (L180–L233), which are informative;
+"Use GeoParquet 2.0 or 1.1 with covering" (L18–L19), which is Core in this document.
 
 ## Prose that was moved or condensed
 

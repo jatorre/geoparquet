@@ -15,5 +15,7 @@ test-method::
 3. Verify that A and B are the same coordinate reference system, or that both are undefined.
 
 NOTE: Equivalence of two CRS definitions is determined with a CRS library (for example PROJ); differences in encoding only (PROJJSON versus authority code) are not a failure.
+
+NOTE: Implemented by `gpio validate` check `v2_crs_consistency_*` (semantic comparison through pyproj). A Parquet `crs` given as a bare `<authority>:<code>` string is currently read as unset (geoparquet-io issue #814), so that combination is not yet verified. GDAL checks the form combinations only.
 --
 ====

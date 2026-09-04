@@ -1,0 +1,17 @@
+[[ats_distribution_bbox-column-declared]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/distribution/bbox-column-declared
+target:: /req/distribution/bbox-column-declared
+test-purpose:: Verify that any bounding box column is declared.
+test-method::
++
+--
+1. List the root-level group fields of the Parquet schema that have child fields named `xmin`, `ymin`, `xmax` and `ymax`.
+
+2. For each such field, verify that the column metadata object of some geometry column has a `covering.bbox` whose paths name that field.
+
+NOTE: Implemented by `gpio check bbox`, which fails a file whose bounding box column is not declared in `covering`.
+--
+====

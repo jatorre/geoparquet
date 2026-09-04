@@ -1,0 +1,8 @@
+// Source: distributing-geoparquet.md, tl;dr (L21) and Row Group Size (L81-L99); thresholds from gpio check row-group (10 000-200 000 rows accepted; 64-256 MB)
+[[req_distribution_row-group-size]]
+[requirement]
+====
+[%metadata]
+identifier:: /req/distribution/row-group-size
+part:: Except for a file smaller than 64 MB, which MAY consist of a single row group, every row group SHALL contain at least 10 000 rows and at most 200 000 rows.
+====

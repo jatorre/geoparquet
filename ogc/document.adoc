@@ -62,7 +62,9 @@ include::sections/clause_6_core.adoc[]
 
 include::sections/clause_7_covering.adoc[]
 
-include::sections/clause_8_implementation_considerations.adoc[]
+include::sections/clause_8_distribution.adoc[]
+
+include::sections/clause_9_implementation_considerations.adoc[]
 
 include::sections/annex-a.adoc[]
 

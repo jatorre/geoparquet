@@ -12,3 +12,7 @@ include::../abstract_tests/ATS_class_core.adoc[]
 === Conformance Class Bounding Box Covering
 
 include::../abstract_tests/ATS_class_covering.adoc[]
+
+=== Conformance Class Cloud-Optimized Distribution
+
+include::../abstract_tests/ATS_class_distribution.adoc[]

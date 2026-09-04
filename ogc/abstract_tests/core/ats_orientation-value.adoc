@@ -9,5 +9,7 @@ test-method::
 +
 --
 1. For each column metadata object that has an `orientation` member, verify that its value is the string `counterclockwise`.
+
+NOTE: Implemented by `gpio validate` check `orientation_valid_*`, GPQ and the JSON Schema.
 --
 ====

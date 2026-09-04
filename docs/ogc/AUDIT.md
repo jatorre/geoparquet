@@ -7,7 +7,9 @@ community specification. Read-only audit; no PR branch was modified.**
 > standardization target (the file), so reader expectations are informative; the covering class is
 > drafted from PR #302 and marked conditional. The 2.0 metanorma document is in
 > [`../../ogc/`](../../ogc/) (two requirements classes: Core with 20 requirements, 6
-> recommendations, 3 permissions; Bounding Box Covering with 6 requirements; 26 abstract tests).
+> recommendations, 3 permissions; Bounding Box Covering with 6 requirements; plus, at Chris Holmes's suggestion, a proposed
+> Cloud-Optimized Distribution class with 5 requirements and 4 recommendations drawn from the
+> distribution best-practices guide and `geoparquet-io`; 31 abstract tests, each naming the `gpio` check that implements it).
 > Companion files: [`CHANGES.md`](CHANGES.md) (wording differences), [`spec-issues.md`](spec-issues.md)
 > (defects in the community spec to raise as issues), [`gaps.md`](gaps.md) (validator coverage per
 > test). Section 7 below describes the five-class structure proposed before that decision; the
