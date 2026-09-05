@@ -8,10 +8,8 @@ test-purpose:: Verify the row group sizes.
 test-method::
 +
 --
-1. If the total size of the file is below 64 MB and it has one row group, the test passes.
+1. For every row group, read `num_rows` from the file metadata and verify that it does not exceed 150 000.
 
-2. Otherwise, for every row group, verify that `num_rows` is at least 10 000 and at most 200 000.
-
-NOTE: Implemented by `gpio check row-group` and `gpio check optimization` (factor 4); the thresholds in this Standard are those of geoparquet-io and are to be confirmed by the community.
+NOTE: Implemented by Portolan's validator (150 000 rows maximum) and, with different advisory bands, by `gpio check row-group`.
 --
 ====

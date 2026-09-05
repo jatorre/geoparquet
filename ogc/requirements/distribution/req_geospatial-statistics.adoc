@@ -1,4 +1,4 @@
-// Source: distributing-geoparquet.md, Efficient spatial access (L46-L60); gpio check optimization factor 2
+// Source: Portolan formats.md, GeoParquet: 'Files MUST provide per-row-group spatial statistics ... native GeospatialStatistics per geometry column chunk'; distributing-geoparquet.md L46-L60
 [[req_distribution_geospatial-statistics]]
 [requirement]
 ====

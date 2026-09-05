@@ -9,10 +9,9 @@ inherit:: http://www.opengis.net/spec/geoparquet/2.0/req/core
 requirement:: /req/distribution/geospatial-statistics
 requirement:: /req/distribution/spatial-order
 requirement:: /req/distribution/row-group-size
-requirement:: /req/distribution/compression
 requirement:: /req/distribution/bbox-column-declared
-recommendation:: /rec/distribution/compression-level
-recommendation:: /rec/distribution/row-group-rows
+recommendation:: /rec/distribution/compression
+recommendation:: /rec/distribution/bbox-covering
 recommendation:: /rec/distribution/spatial-partitioning
 recommendation:: /rec/distribution/stac-metadata
 ====

@@ -1,8 +1,0 @@
-// Source: distributing-geoparquet.md, tl;dr (L17) and Compression (L38)
-[[rec_distribution_compression-level]]
-[recommendation]
-====
-[%metadata]
-identifier:: /rec/distribution/compression-level
-part:: The ZSTD compression level SHOULD be 15 or higher.
-====

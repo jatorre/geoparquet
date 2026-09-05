@@ -58,13 +58,18 @@ with a known defect; **none** = no tool checks it (heuristic-only tests are mark
 
 ## Conformance Class Cloud-Optimized Distribution (`/conf/distribution/...`, proposal)
 
-| Test | gpio | Others | Coverage | Notes |
+Sources for this class are the Portolan specification's GeoParquet rules and the community guide;
+the tools are `gpio check` and Portolan's own validator (portolan-sdi/rashid).
+
+| Test | gpio | Portolan validator (rashid) | Coverage | Notes |
 | --- | --- | --- | --- | --- |
-| geospatial-statistics | `gpio validate` `native_geo_stats_*`; `gpio check optimization` factor 2 | corpus self-tests | full | Skipped by gpio for remote files. |
-| spatial-order | `gpio check spatial` (row-group bbox overlap below 30 percent, or sampling ratio below 0.5); `check optimization` factor 3 | — | full | The abstract test uses the bbox-overlap method only. |
-| row-group-size | `gpio check row-group`, `check optimization` factor 4 | — | full | gpio scores 10k–50k rows as optimal and accepts 10k–200k; the requirement uses 10k–200k, the recommendation 50k–150k (guide). Thresholds to be confirmed (SI-24). |
-| compression | `gpio check compression`, `check optimization` factor 5 | — | full | Codec only; level not recoverable from the file. |
+| geospatial-statistics | `gpio validate` `native_geo_stats_*`; `gpio check optimization` factor 2 | yes (per-row-group statistics rule) | full | Skipped by gpio for remote files. |
+| spatial-order | `gpio check spatial` / `check optimization` factor 3; metric moving from consecutive-pair overlap to relative skip rate (PR #774) | yes; metric being changed the same way (portolan-spec PR #188, rashid PR #174) | full, metric in flux | The OGC requirement carries no number; the threshold is the tools'. |
+| row-group-size | `gpio check row-group` (advisory bands differ) | yes (150 000 maximum) | full (rashid) | gpio's bands are advice; the 150 000 cap is Portolan's rule. |
 | bbox-column-declared | `gpio check bbox` (fails an undeclared bbox column) | — | full | — |
+
+Recommendations (`/rec/distribution/*`) have no abstract tests; `gpio check compression` and
+`check optimization` factor 5 report the codec.
 
 ## gpio checks that are not requirements of the OGC document
 
@@ -84,15 +89,15 @@ that the community specification (and therefore the OGC text) does not require.
 
 ## Summary
 
-| | Core (20 tests) | Covering (6 tests) | Distribution (5 tests, proposal) |
+| | Core (20 tests) | Covering (6 tests) | Distribution (4 tests, proposal) |
 | --- | --- | --- | --- |
-| full | 10 | 0 | 5 |
+| full | 10 | 0 | 4 |
 | partial | 6 | 5 | 0 |
 | none / heuristic only | 4 | 1 | 0 |
 
 Compared with the GPQ/GDAL-only picture, gpio closes the logical-type check, the CRS consistency
-check (except the authority-code form), most of the covering structure and, through `gpio check`, the
-whole proposed distribution class.
+check (except the authority-code form), most of the covering structure and, through `gpio check` and
+Portolan's validator, the whole proposed distribution class.
 
 ## Suggested next steps for the test suite (outside this repository)
 

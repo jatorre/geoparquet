@@ -72,27 +72,29 @@ file. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswal
 
 **This class is not a restatement of `geoparquet.md`.** It was requested by Chris Holmes on PR #304
 as a "profile" of a well-distributed GeoParquet file that downstream specifications (Portolan) can
-cite. Its sources are `format-specs/distributing-geoparquet.md` (the community best-practices guide,
-written as advice, line numbers below refer to `main` at `21eba45`) and the checks of
-`geoparquet-io` (`gpio check`), which supply the thresholds. Turning advice into SHALL statements is
-new normative content; every threshold is `gpio`'s and is marked for confirmation by the community.
-The class is optional, Core does not depend on it, and it can be dropped as a unit.
+cite. On his advice the statements are sourced from the **Portolan specification**
+(`specs/portolan/formats.md`, section "GeoParquet", portolan-sdi/portolan-spec `main`, 2026-09-05),
+whose rules were written with testing in mind, and secondarily from
+`format-specs/distributing-geoparquet.md` (the community guide, line numbers refer to `main` at
+`21eba45`). The class is a conservative baseline: only rules with community consensus are
+requirements; anything still being measured (lower bound on row group size, the exact spatial-order
+metric, compression) is a recommendation or is left to the executable test suite, so that OGC
+does not have to re-approve every refinement. Optional; Core does not depend on it.
 
 | Identifier | Source | Statement and provenance |
 | --- | --- | --- |
-| /req/distribution/geospatial-statistics | guide L46–L60; `gpio validate` `native_geo_stats_*`; `gpio check optimization` factor 2 | Every column chunk of every geometry column SHALL carry `GeospatialStatistics` with a bounding box. The guide describes the statistics as what Parquet "writes"; Parquet itself makes them optional. The requirement is `gpio`'s "geo bbox stats present" factor. |
-| /req/distribution/spatial-order | guide L20, L68–L79; `gpio check spatial` (`_OVERLAP_RATIO_THRESHOLD = 0.3`) | Rows SHALL be spatially ordered such that fewer than 30 percent of consecutive row-group pairs of the primary geometry column have overlapping bounding boxes. The guide says "spatially order the data" without a metric; the metric and threshold are `gpio`'s bbox-stats method. `gpio`'s sampling fallback (consecutive vs random distance ratio below 0.5) is mentioned in a NOTE, not required. |
-| /req/distribution/row-group-size | guide L21 (tl;dr: 50 000–150 000), L92 (body: 50 000–200 000), L98 (64–256 MB); `gpio check row-group` (`assess_row_count`: 10 000–200 000 accepted; `check optimization`: 10 000–50 000 optimal) | Row groups SHALL have between 10 000 and 200 000 rows, except a single-row-group file below 64 MB. The sources disagree with each other (SI-24); the requirement takes the widest range any of them accepts and the recommendation /rec/distribution/row-group-rows takes the guide's tl;dr range plus the 64–256 MB byte range. |
-| /req/distribution/compression | guide L17, L25–L42; `gpio check compression` (`passed = compression == "ZSTD"`) | Geometry column chunks SHALL use ZSTD. The guide's "level 15 or higher" is /rec/distribution/compression-level because the level is not stored in the file. |
-| /req/distribution/bbox-column-declared | guide (PR #302) "When to add a bbox covering column"; `gpio check bbox` | A root-level group with `xmin`/`ymin`/`xmax`/`ymax` children SHALL be declared in `covering`. `gpio check bbox` fails an undeclared bbox column ("costs file size and cannot be used by any reader"). |
-| /rec/distribution/compression-level | guide L17, L38 | SHOULD be 15 or higher. Verbatim intent. |
-| /rec/distribution/row-group-rows | guide L21, L92, L98 | SHOULD be 50 000–150 000 rows or 64–256 MB. See SI-24. |
-| /rec/distribution/spatial-partitioning | guide L22, L101–L123 | Datasets above roughly 2 GB SHOULD be spatially partitioned. Dataset-level; untestable on one file, hence a recommendation. |
-| /rec/distribution/stac-metadata | guide L23, L125–L136 | SHOULD be described with STAC Collection/Item metadata. Dataset-level. `gpio check stac` validates the STAC JSON but that is outside the file. |
+| /req/distribution/geospatial-statistics | Portolan: "Files MUST provide per-row-group spatial statistics … for GeoParquet 2.x / Parquet GEOMETRY, native GeospatialStatistics per geometry column chunk"; guide L46–L60 | Every column chunk of every geometry column SHALL carry `GeospatialStatistics` with a bounding box. Portolan's 1.1 alternative (a `bbox` covering with min/max statistics) is not needed here because this document is 2.0-only. |
+| /req/distribution/spatial-order | Portolan: "Rows MUST be spatially ordered so nearby features are nearby in the file"; guide L20, L68–L79 | Stated on the outcome (nearby features nearby in the file; row-group statistics let a reader skip most non-intersecting row groups), **without a numeric threshold**. The abstract test describes the pruning-based measurement that Portolan PR #188 and geoparquet-io PR #774 are introducing (skip rate relative to an ideal tiling with the same number of row groups) and says the threshold lives in the test suite. An earlier draft required "fewer than 30 % of consecutive row-group pairs overlap"; that metric is being replaced because it fails perfectly Hilbert-sorted files (geoparquet-io #755). |
+| /req/distribution/row-group-size | Portolan: "Row groups MUST hold no more than 150,000 rows"; guide L21 (tl;dr 50 000–150 000), L92 (body 50 000–200 000) | "SHALL hold no more than 150 000 rows." No lower bound: Chris Holmes, 2026-09-05: "There's still experimentation needed before we really figure out what's optimal on lower bounds". An earlier draft had 10 000–200 000 with a 64 MB single-row-group exception (geoparquet-io's bands); dropped. |
+| /req/distribution/bbox-column-declared | guide (PR #302) "When to add a bbox covering column"; `gpio check bbox` | A root-level group with `xmin`/`ymin`/`xmax`/`ymax` children SHALL be declared in `covering`. `gpio check bbox` fails an undeclared bbox column ("costs file size and cannot be used by any reader"). Kept as a requirement because an undeclared bbox column is a defect, not a tuning choice. |
+| /rec/distribution/compression | Portolan: "Files SHOULD be compressed to stay small, with zstd RECOMMENDED"; guide L17, L38 | Two parts: SHOULD be compressed; ZSTD RECOMMENDED at level 15 or higher. An earlier draft made ZSTD a requirement; Portolan keeps it a recommendation, so does this document. |
+| /rec/distribution/bbox-covering | Portolan: "For 2.x, a covering column remains RECOMMENDED even where native statistics exist, since it adds page-level min/max stats" | Verbatim intent. |
+| /rec/distribution/spatial-partitioning | Portolan, Partitioned Collections: "consider partitioning files over ~2 GB, targeting 200 MB–1 GB per file"; guide L22, L101–L123 | Dataset-level; untestable on one file, hence a recommendation. |
+| /rec/distribution/stac-metadata | Portolan: STAC `table` extension SHOULD; guide L23, L125–L136 | Dataset-level recommendation; the STAC table extension is named as the way to document columns. |
 
-Not carried into the class: the guide's exemplar datasets (L146–L172), the frontend-application
-discussion (L138–L144) and the page-level statistics discussion (L180–L233), which are informative;
-"Use GeoParquet 2.0 or 1.1 with covering" (L18–L19), which is Core in this document.
+Not carried: the guide's exemplar datasets, frontend discussion and page-level statistics
+discussion (informative); "Use GeoParquet 2.0 or 1.1 with covering" (Core here); Portolan's PMTiles,
+styles and partition-extension rules (Portolan-specific, not GeoParquet).
 
 ## Prose that was moved or condensed
 

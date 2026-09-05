@@ -1,8 +1,0 @@
-// Source: distributing-geoparquet.md, tl;dr (L21) and Row Group Size (L92, L98)
-[[rec_distribution_row-group-rows]]
-[recommendation]
-====
-[%metadata]
-identifier:: /rec/distribution/row-group-rows
-part:: Row groups SHOULD contain between 50 000 and 150 000 rows, or between 64 MB and 256 MB of data.
-====
