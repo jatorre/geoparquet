@@ -65,11 +65,12 @@ the tools are `gpio check` and Portolan's own validator (portolan-sdi/rashid).
 | --- | --- | --- | --- | --- |
 | geospatial-statistics | `gpio validate` `native_geo_stats_*`; `gpio check optimization` factor 2 | yes (per-row-group statistics rule) | full | Skipped by gpio for remote files. |
 | spatial-order | `gpio check spatial` / `check optimization` factor 3; metric moving from consecutive-pair overlap to relative skip rate (PR #774) | yes; metric being changed the same way (portolan-spec PR #188, rashid PR #174) | full, metric in flux | The OGC requirement carries no number; the threshold is the tools'. |
-| row-group-size | `gpio check row-group` (advisory bands differ) | yes (150 000 maximum) | full (rashid) | gpio's bands are advice; the 150 000 cap is Portolan's rule. |
-| bbox-column-declared | `gpio check bbox` (fails an undeclared bbox column) | — | full | — |
 
-Recommendations (`/rec/distribution/*`) have no abstract tests; `gpio check compression` and
-`check optimization` factor 5 report the codec.
+Recommendations (`/rec/distribution/*`) have no abstract tests. The tools still check three of them:
+rashid enforces the 150 000-row maximum and `gpio check row-group` reports advisory bands;
+`gpio check bbox` fails an undeclared bbox column; `gpio check compression` and `check optimization`
+factor 5 report the codec. A file can therefore fail rashid or gpio and still conform to this
+class; that is intended (Portolan is the stricter, evolving layer).
 
 ## gpio checks that are not requirements of the OGC document
 

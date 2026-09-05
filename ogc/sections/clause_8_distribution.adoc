@@ -10,20 +10,21 @@ the rules, and can evolve stricter or more specific rules on top of it.
 
 Following Chris's guidance, the statements are sourced from the Portolan specification's
 GeoParquet rules (specs/portolan/formats.md, section "GeoParquet"), which were written with
-testing in mind, and from format-specs/distributing-geoparquet.md. Only the rules with community
-consensus are requirements here: statistics present, rows spatially ordered, at most 150 000 rows
-per row group, a bounding box column declared if present. Everything still under discussion
-(lower bound on row group size, the exact pruning metric for spatial order, compression) is a
-recommendation or is left to the executable test suite. The class is optional and Core does not
-depend on it, so it can change or be dropped without affecting the approval of Core. See
-docs/ogc/CHANGES.md, section "Requirements Class Cloud-Optimized Distribution".
+testing in mind, and from format-specs/distributing-geoparquet.md. Only two rules are
+requirements: statistics present and rows spatially ordered. The numbers (150 000 rows per row
+group), the declared bounding box column and compression are recommendations, so that this
+Standard does not fix what Portolan and geoparquet-io are still tuning (Javier de la Torre,
+2026-09-05, after a first draft that had both as requirements; @cholmes to confirm). The class is
+optional and Core does not depend on it, so it can change or be dropped without affecting the
+approval of Core. See docs/ogc/CHANGES.md, section "Requirements Class Cloud-Optimized
+Distribution".
 ////
 
 === Overview
 
 include::../requirements/requirements_class_distribution.adoc[]
 
-Apache Parquet gives writers many options, and the defaults of most libraries are not tuned for geospatial data. The GeoParquet community has converged on a small set of practices that make a GeoParquet file efficient to distribute and to query directly from object storage without a server: keep the geospatial statistics that the Parquet `GEOMETRY` and `GEOGRAPHY` types provide, order the rows spatially so that those statistics let a reader skip data, keep row groups small enough to skip, and compress well. This requirements class states the practices that have community consensus as testable requirements on a single file, and the rest as recommendations. It is intended as a baseline: specifications that publish GeoParquet, such as Portolan, can require conformance to this class and add stricter rules of their own as the community's understanding evolves.
+Apache Parquet gives writers many options, and the defaults of most libraries are not tuned for geospatial data. The GeoParquet community has converged on a small set of practices that make a GeoParquet file efficient to distribute and to query directly from object storage without a server: keep the geospatial statistics that the Parquet `GEOMETRY` and `GEOGRAPHY` types provide, order the rows spatially so that those statistics let a reader skip data, keep row groups small enough to skip, and compress well. This requirements class states the two practices that every well-distributed file shares, statistics and spatial ordering, as testable requirements on a single file, and the rest as recommendations. It is intended as a baseline: specifications that publish GeoParquet, such as Portolan, can require conformance to this class and add stricter rules of their own as the community's understanding evolves.
 
 This requirements class is optional. It depends on the Core requirements class (<<rc_core>>) and, when a file declares a bounding box covering, on the Bounding Box Covering requirements class (<<rc_covering>>). A file that does not claim conformance to this class is still a GeoParquet file.
 
@@ -45,9 +46,9 @@ NOTE: How much pruning counts as "most" depends on the number of row groups: two
 
 === Row group size
 
-If row groups are too large a reader cannot skip much data. The community has agreed on an upper bound; what the best lower bound is, and whether it depends on the use (analytics, web front ends), is still being measured, so this Standard states only the maximum.
+A reader can only skip a row group as a whole, so if row groups are too large the statistics let it skip little. The upper bound the community currently uses is stated as a recommendation rather than a requirement: the number is still being tuned, a lower bound is still being measured, and a figure fixed in this Standard could not follow either. The Portolan specification and `geoparquet-io` hold the current values.
 
-include::../requirements/distribution/req_row-group-size.adoc[]
+include::../recommendations/distribution/rec_row-group-size.adoc[]
 
 === Compression
 
@@ -63,7 +64,7 @@ With native geospatial statistics a separate bounding box column is not required
 
 include::../recommendations/distribution/rec_bbox-covering.adoc[]
 
-include::../requirements/distribution/req_bbox-column-declared.adoc[]
+include::../recommendations/distribution/rec_bbox-column-declared.adoc[]
 
 === Dataset-level recommendations
 

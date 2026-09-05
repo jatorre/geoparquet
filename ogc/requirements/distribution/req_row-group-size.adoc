@@ -1,8 +1,0 @@
-// Source: Portolan formats.md, GeoParquet: 'Row groups MUST hold no more than 150,000 rows'; distributing-geoparquet.md L21, L92
-[[req_distribution_row-group-size]]
-[requirement]
-====
-[%metadata]
-identifier:: /req/distribution/row-group-size
-part:: Every row group SHALL hold no more than 150 000 rows.
-====
