@@ -56,7 +56,7 @@ with a known defect; **none** = no tool checks it (heuristic-only tests are mark
 | bbox-column-repetition | — | — | — | **none** | Fixtures: `required` bbox on `optional` geometry; bbox present where geometry is null. |
 | bbox-column-nesting | `covering_bbox_column_exists_*` (name lookup) | — | — | partial | A nested field with the same name would pass. |
 
-## Conformance Class Cloud-Optimized Distribution (`/conf/distribution/...`, proposal)
+## Conformance Class Cloud-Optimized Distribution (`/conf/distribution/...`)
 
 Sources for this class are the Portolan specification's GeoParquet rules and the community guide;
 the tools are `gpio check` and Portolan's own validator (portolan-sdi/rashid).
@@ -64,13 +64,35 @@ the tools are `gpio check` and Portolan's own validator (portolan-sdi/rashid).
 | Test | gpio | Portolan validator (rashid) | Coverage | Notes |
 | --- | --- | --- | --- | --- |
 | geospatial-statistics | `gpio validate` `native_geo_stats_*`; `gpio check optimization` factor 2 | yes (per-row-group statistics rule) | full | Skipped by gpio for remote files. |
-| spatial-order | `gpio check spatial` / `check optimization` factor 3; metric moving from consecutive-pair overlap to relative skip rate (PR #774) | yes; metric being changed the same way (portolan-spec PR #188, rashid PR #174) | full, metric in flux | The OGC requirement carries no number; the threshold is the tools'. |
+| spatial-order | `gpio check spatial` (1.8.0, PR #774): expected share of bytes skipped relative to a reference tiling, pass at 0.65, no verdict below 8 row groups | yes, same method (portolan-spec `specs/incubating/spatial-order.md`, rashid PR #174) | full | The OGC requirement carries no number; the threshold is the tools'. `geoparquet-validator` 0.3.1 still uses the earlier sampled variant (20 windows, 0.70, no verdict below 5 row groups) and should follow. |
 
-Recommendations (`/rec/distribution/*`) have no abstract tests. The tools still check three of them:
-rashid enforces the 150 000-row maximum and `gpio check row-group` reports advisory bands;
-`gpio check bbox` fails an undeclared bbox column; `gpio check compression` and `check optimization`
-factor 5 report the codec. A file can therefore fail rashid or gpio and still conform to this
-class; that is intended (Portolan is the stricter, evolving layer).
+The class has no recommendations since 2026-11-24 (see `CHANGES.md`). The tools still check
+practices that are no longer in the document: rashid enforces a 150 000-row maximum and
+`gpio check row-group` reports advisory bands; `gpio check bbox` fails an undeclared bbox column;
+`gpio check compression` and `check optimization` report the codec. A file can therefore fail
+rashid or gpio and still conform to this class; that is intended (Portolan and the community guide
+are the stricter, evolving layer). `gpio check spatial` was rewritten around the pruning metric in
+geoparquet-io 1.8.0 (#774, 2026-11-23).
+
+## Conformance Class Native Geospatial Types (`/conf/native/...`, added 2026-11-24)
+
+The tool is `geoparquet-validator` 0.3.1 (geoparquet/geoparquet-validator, 2026-11-05), whose
+native class was written for community issue #308 with these identifiers; positives are in
+`data/native_only/` of `geoparquet-testing` (PR #8). gpio was not re-audited for this class.
+
+| Test | geoparquet-validator | Coverage | Notes |
+| --- | --- | --- | --- |
+| geometry-column-type | `/conf/native/geometry-column-type` | full | The validator reports "not claimed" rather than a failure when no column is annotated. |
+| geometry-column-nesting | `/conf/native/geometry-column-nesting` | full | Nested annotated leaves are listed and fail. |
+| geometry-column-repetition | `/conf/native/geometry-column-repetition` | full | |
+| wkb | `/conf/native/wkb` | full | Sampled on large files. |
+| axis-order | `/conf/native/axis-order` | heuristic | Coordinate ranges, as in Core. |
+
+The validator's native class has three more tests with no requirement in the OGC document:
+`/conf/native/crs` (the Parquet `crs` parameter is well-formed), `/conf/native/crs-projjson` (a
+PROJJSON `crs` validates) and `/conf/native/crs-default` (coordinates are longitude-latitude when
+the `crs` is unset). They verify rules of the Parquet format, which this document references and
+does not restate; the validator should report them outside the conformance verdict or as advice.
 
 ## gpio checks that are not requirements of the OGC document
 
@@ -82,19 +104,19 @@ that the community specification (and therefore the OGC text) does not require.
 | `v2_crs_in_parquet_type_*` | Non-default CRS must be **inline PROJJSON** in the Parquet `crs` parameter | The spec allows `<authority>:<code>` too (L84–L87, `/rec/core/parquet-crs-form`). gpio is stricter; worth a discussion. |
 | `v2_edges_consistency_*` | `edges` must equal the GEOGRAPHY `algorithm`; a GEOGRAPHY column with no `edges` fails (default planar vs spherical); non-planar `edges` on GEOMETRY fails | Not in the spec (SI-12). gpio's behaviour is a good candidate wording for the fix. |
 | `epoch_valid_*` | `epoch` on a datum ensemble fails; on a static CRS warns | Not in the spec (SI-19). |
-| `version_known`, `version_features_match` | Version string is `1.x`/`2.x`; 1.x files must not use `covering` (pre-1.1) or native types | Version compatibility is informative (Clause 9). |
-| `native_geo_stats_*`, `native_geo_stats_contains_data_*` | Geospatial statistics present and containing the data | Best practice; now `/req/distribution/geospatial-statistics` in the proposed profile. |
+| `version_known`, `version_features_match` | Version string is `1.x`/`2.x`; 1.x files must not use `covering` (pre-1.1) or native types | Version compatibility is informative (Clause 10). |
+| `native_geo_stats_*`, `native_geo_stats_contains_data_*` | Geospatial statistics present and containing the data | Best practice; `/req/distribution/geospatial-statistics` in the optional profile. |
 | `native_geo_types_match_*`, `geography_coordinate_bounds_*`, `native_crs_format_*` | Parquet-level rules (statistics vs data, GEOGRAPHY bounds, `crs` string form) | Parquet's rules, referenced normatively, not restated. |
 | `coordinates_valid_for_crs_*` | Coordinates within the CRS area of use | Heuristic; used as the axis-order / default-CRS test method. |
 | `file_extension` (warning) | `.parquet` extension | `/rec/core/file-extension`. |
 
 ## Summary
 
-| | Core (20 tests) | Covering (6 tests) | Distribution (4 tests, proposal) |
-| --- | --- | --- | --- |
-| full | 10 | 0 | 4 |
-| partial | 6 | 5 | 0 |
-| none / heuristic only | 4 | 1 | 0 |
+| | Core (20 tests) | Covering (6 tests) | Distribution (2 tests) | Native (5 tests) |
+| --- | --- | --- | --- | --- |
+| full | 10 | 0 | 2 | 4 |
+| partial | 6 | 5 | 0 | 0 |
+| none / heuristic only | 4 | 1 | 0 | 1 |
 
 Compared with the GPQ/GDAL-only picture, gpio closes the logical-type check, the CRS consistency
 check (except the authority-code form), most of the covering structure and, through `gpio check` and

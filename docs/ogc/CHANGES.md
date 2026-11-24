@@ -4,7 +4,14 @@
 (`ogc/`) does not change the meaning of the community specification. Source text is
 `format-specs/geoparquet.md` at tag `v2.0.0-rc.1` (identical on `main` at `21eba45`), plus the
 `covering` text of PR #302 for the Bounding Box Covering class. Line numbers (`L52`) refer to that
-file. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswalk.md); spec issues
+file.
+
+**Checked against the tag (2026-11-24).** `geoparquet.md` and `schema.json` at `v2.0.0`
+(2026-11-05) differ from `v2.0.0-rc.1` only by the `covering` text of PR #302 (already restated in
+Clause 7), the `schema.json` description fix of PR #301, and nothing else; PR #312, merged after the
+tag, changes only the Parquet links (see G7). No provision of this document needed to change. The
+line numbers below were not renumbered: in the tagged file every line from L55 on is one line
+lower (the `covering` row of the column metadata table), and the covering sections are new. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswalk.md); spec issues
 (`SI-n`) to [`spec-issues.md`](spec-issues.md).
 
 ## Global conventions
@@ -15,9 +22,9 @@ file. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswal
 | G2 | JSON "field" / "key" → "member"; "Parquet logical-type `crs` property" → "`crs` parameter of the `GEOMETRY`/`GEOGRAPHY` logical type". | JSON (RFC 8259) terminology; "type parameter" is what `LogicalTypes.md` calls `crs` and `algorithm`. |
 | G3 | Normative keywords appear only inside requirement / recommendation / permission blocks. The surrounding prose, copied from the markdown, is rewritten in the indicative ("Geometry columns are at the root of the schema"). | OGC ModSpec: provisions live in the boxes; prose must not carry competing normative statements. No sentence was dropped; each keyword sentence has a block. |
 | G4 | Conditions that the markdown states in surrounding prose ("If no value is set, no assertions are made…") are written into the requirement ("If the `orientation` member is present, …"). | Makes each requirement testable on its own; fixes the unconditional wording of PR #224 R7. |
-| G5 | Statements addressed to software (readers, implementations) are not requirements. They are reproduced verbatim in meaning in Clause 8 (informative). Affected: L93 reader MUST/SHOULD on `crs` forms (CRS-8, CRS-9); L263 forward-compatibility MUST (VC-1); L278–L279 SHOULD NOT / SHOULD (VC-2, VC-3). | SWG decision (chair, 2026-09-03): a single standardization target, the file, is simpler and easier to get approved. **This is the one place where the OGC document is deliberately weaker than the markdown: two MUSTs and three SHOULDs on readers are not testable requirements.** |
+| G5 | Statements addressed to software (readers, implementations) are not requirements. They are reproduced verbatim in meaning in Clause 10 (informative). Affected: L93 reader MUST/SHOULD on `crs` forms (CRS-8, CRS-9); L263 forward-compatibility MUST (VC-1); L278–L279 SHOULD NOT / SHOULD (VC-2, VC-3). | SWG decision (chair, 2026-09-03): a single standardization target, the file, is simpler and easier to get approved. **This is the one place where the OGC document is deliberately weaker than the markdown: two MUSTs and three SHOULDs on readers are not testable requirements.** |
 | G6 | The Bounding Box Covering class (Clause 7) is taken from PR #302, merged on 2026-09-07 (commit 4c9f87e), not from the rc.1 text. | The clause is no longer conditional; the editorial comment and can be removed as a unit. |
-| G7 | Normative references to Apache Parquet are pinned to format version 2.12.0 (`LogicalTypes.md`, `Geospatial.md`), the version the markdown links. | Dated references are required for normative use. See SI-9 for a version problem in one of those links. |
+| G7 | Normative references to Apache Parquet are pinned to format version 2.12.0 (`LogicalTypes.md`, `Geospatial.md`), the version the markdown linked until PR #312 (2026-11-20) pointed its links at the `master` branch of `parquet-format`. | Dated references are required for normative use, so this document keeps 2.12.0. See SI-9 for a version problem in one of the earlier links. |
 | G8 | Terms and definitions (Clause 4) are new: bounding box column, column metadata object, covering, geometry column, GeoParquet file, GeoParquet metadata, primary geometry column, WKB; CRS, dynamic CRS and epoch from ISO 19111. | OGC template requirement. Definitions were written to match how the markdown uses the words. |
 | G9 | Every abstract test ends with a NOTE naming the `geoparquet-io` (`gpio validate` / `gpio check`) check that implements it, or stating that no tool does. | Review criterion from the maintainers (Chris Holmes, PR #304): the OGC assertions must line up with the tool the community runs for 2.0. Informative; does not change the test method. |
 
@@ -68,7 +75,7 @@ file. Crosswalk row IDs (`FM-3`, `GT-4`, …) refer to [`crosswalk.md`](crosswal
 | /req/covering/bbox-column-nesting | idem | None. | |
 | (no requirement) bounding box column values, Clause 7.4 | bbox covering encoding §, Bounding Box Columns § | Prose plus a NOTE: the values of a bounding box column are described ("the bounding box of the geometry in the same row"), **not** required, because the markdown describes this ("captures … the bounding box of the geometry for every row"; "the values follow the GeoJSON specification") without a keyword. An earlier draft had /req/covering/bbox-column-values; removed to stay derivative. | Consequence, recorded as SI-16: the class constrains only the schema of the column, not its content, so a covering with wrong values conforms until the community adds a MUST. |
 
-## Requirements Class Cloud-Optimized Distribution (PROPOSAL, Clause 8)
+## Requirements Class Cloud-Optimized Distribution (Clause 8)
 
 **This class is not a restatement of `geoparquet.md`.** It was requested by Chris Holmes on PR #304
 as a "profile" of a well-distributed GeoParquet file that downstream specifications (Portolan) can
@@ -87,26 +94,80 @@ fixed number in a Standard ages badly and cannot follow the tuning still going o
 `geoparquet-io`; an undeclared bbox column wastes bytes but does not make the file wrong. The class
 keeps two requirements, statistics and spatial ordering, which every tool tests the same way.
 
+2026-11-24: the six recommendations of the class were **removed from the Standard**
+(`/rec/distribution/row-group-size`, `compression`, `bbox-covering`, `bbox-column-declared`,
+`spatial-partitioning`, `stac-metadata`). Matthias Mohr proposed it on PR #304 (2026-09-08): "The
+standard should only include the actual standard parts and the profiles, not the (current) best
+practices. […] Best practices can be updated better than standards." Javier de la Torre agreed
+(2026-09-09) and Joris Van den Bossche asked for the removal in review (2026-09-21). The practices
+stay where the community maintains them, `format-specs/distributing-geoparquet.md`, which Clause 8
+cites as informative in a closing subclause "Other distribution practices". The class now has two
+requirements, two abstract tests and no recommendations. PR #313 (2026-11-21) has since aligned
+the guide's own row-group numbers (SI-24).
+
 | Identifier | Source | Statement and provenance |
 | --- | --- | --- |
 | /req/distribution/geospatial-statistics | Portolan: "Files MUST provide per-row-group spatial statistics … for GeoParquet 2.x / Parquet GEOMETRY, native GeospatialStatistics per geometry column chunk"; guide L46–L60 | Every column chunk of every geometry column SHALL carry `GeospatialStatistics` with a bounding box. Portolan's 1.1 alternative (a `bbox` covering with min/max statistics) is not needed here because this document is 2.0-only. |
 | /req/distribution/spatial-order | Portolan: "Rows MUST be spatially ordered so nearby features are nearby in the file"; guide L20, L68–L79 | Stated on the outcome (nearby features nearby in the file; row-group statistics let a reader skip most non-intersecting row groups), **without a numeric threshold**. The abstract test describes the pruning-based measurement that Portolan PR #188 and geoparquet-io PR #774 are introducing (skip rate relative to an ideal tiling with the same number of row groups) and says the threshold lives in the test suite. An earlier draft required "fewer than 30 % of consecutive row-group pairs overlap"; that metric is being replaced because it fails perfectly Hilbert-sorted files (geoparquet-io #755). |
-| /rec/distribution/row-group-size | Portolan: "Row groups MUST hold no more than 150,000 rows"; guide L21 (tl;dr 50 000–150 000), L92 (body 50 000–200 000) | "SHOULD hold no more than 150 000 rows." Portolan's MUST becomes a SHOULD here (see above); Portolan stays stricter. No lower bound: Chris Holmes, 2026-09-05: "There's still experimentation needed before we really figure out what's optimal on lower bounds". An earlier draft had 10 000–200 000 with a 64 MB single-row-group exception (geoparquet-io's bands); dropped. |
-| /rec/distribution/bbox-column-declared | guide (PR #302) "When to add a bbox covering column"; `gpio check bbox` | A root-level group with `xmin`/`ymin`/`xmax`/`ymax` children SHOULD be declared in `covering`. `gpio check bbox` fails an undeclared bbox column ("costs file size and cannot be used by any reader"), so gpio is stricter than this class. A requirement in the first draft; demoted (see above). |
-| /rec/distribution/compression | Portolan: "Files SHOULD be compressed to stay small, with zstd RECOMMENDED"; guide L17, L38 | Two parts: SHOULD be compressed; ZSTD RECOMMENDED at level 15 or higher. An earlier draft made ZSTD a requirement; Portolan keeps it a recommendation, so does this document. |
-| /rec/distribution/bbox-covering | Portolan: "For 2.x, a covering column remains RECOMMENDED even where native statistics exist, since it adds page-level min/max stats" | Verbatim intent. |
-| /rec/distribution/spatial-partitioning | Portolan, Partitioned Collections: "consider partitioning files over ~2 GB, targeting 200 MB–1 GB per file"; guide L22, L101–L123 | Dataset-level; untestable on one file, hence a recommendation. |
-| /rec/distribution/stac-metadata | Portolan: STAC `table` extension SHOULD; guide L23, L125–L136 | Dataset-level recommendation; the STAC table extension is named as the way to document columns. |
 
-Not carried: the guide's exemplar datasets, frontend discussion and page-level statistics
+Not carried: row group size, compression, bounding box covering, spatial partitioning and STAC
+metadata (removed, see above); the guide's exemplar datasets, frontend discussion and page-level statistics
 discussion (informative); "Use GeoParquet 2.0 or 1.1 with covering" (Core here); Portolan's PMTiles,
 styles and partition-extension rules (Portolan-specific, not GeoParquet).
+
+## Requirements Class Native Geospatial Types (Clause 9, added 2026-11-24)
+
+**Why it exists.** Community issue #308 asked that a Parquet file whose geometry columns use the
+native `GEOMETRY`/`GEOGRAPHY` types be conformant GeoParquet 2.0 without the `geo` key. The
+maintainers kept the 2.0.0 text as it is (the `geo` key stays mandatory, L32; "Such a file is not
+conformant GeoParquet 2.0, but any GeoParquet 2.0 reader should still be able to read it", L89)
+and agreed that this OGC document defines a conformance class for such files (Chris Holmes,
+2026-10-22: "I'm not opposed to the OGC spec proposed in #304 having a conformance class for
+parquet geo types without geo key"; 2026-11-04: "I'm good with #304 to have a conformance class
+for native only files"; Dewey Dunnington agreed the same day).
+
+**What it does not do.** It does not make such a file a GeoParquet file: Clause 2 and Clause 9 say
+so in the words of L89, and Core is unchanged. It does not add a requirement that the markdown
+does not state: the five requirements are the statements the markdown makes about geometry columns
+before and independently of the `geo` metadata.
+
+| Identifier | Source | Statement and provenance |
+| --- | --- | --- |
+| /req/native/geometry-column-type | L15; L78 ("Producing these native geospatial Parquet types is the foundation of GeoParquet 2.0"); L62, L89 (a writer MAY emit only the native types) | "The geometries of the file SHALL be stored in one or more geometry columns: `BYTE_ARRAY` columns annotated with `GEOMETRY` or `GEOGRAPHY`." Part 1 of /req/core/geometry-column-type; part 2 (`encoding` = `"WKB"`) is `geo` metadata and stays in Core. "One or more" is what makes the class applicable: a file with no such column is plain Parquet (see the compatibility guide, case 3). |
+| /req/native/geometry-column-nesting | L19 | Same statement as /req/core/geometry-column-nesting. |
+| /req/native/geometry-column-repetition | L23 | Same statement as /req/core/geometry-column-repetition. |
+| /req/native/wkb | L15 | Same statement as /req/core/wkb. The Core abstract test also checks the decoded type against `geometry_types`; here there is no `geometry_types`, so the test only decodes. |
+| /req/native/axis-order | L118 | Same statement as /req/core/axis-order. |
+| /rec/native/crs-form | L84–L87, L89 | Same statement as /rec/core/parquet-crs-form. |
+| /rec/native/crs-unknown | L91 | "When the CRS is undefined or unknown, the writer SHOULD set the Parquet `crs` property to the string `srid:0`." In Core this is /rec/core/crs-srid-zero, conditional on the `crs` member being `null`; without `geo` metadata the condition is the markdown's own ("undefined or unknown"). |
+
+Differences from how Core is written:
+
+* **Geometry column.** Core identifies geometry columns through the `columns` member. Here a
+  geometry column is a column annotated with `GEOMETRY` or `GEOGRAPHY`, at any depth, so that a
+  nested one is found and fails the nesting requirement. The Clause 4 definition was widened from
+  "column of a GeoParquet file" to "column of a Parquet file" for this.
+* **Target.** Clause 2 now names one standardization target type, the Parquet file that carries
+  geospatial data in geometry columns, of which the GeoParquet file is the kind that satisfies
+  Core. The class `subject` is "Parquet file" here and "GeoParquet file" in the other three.
+* **No requirement on the Parquet `crs` parameter.** L84: "GeoParquet 2.0 does not restrict which
+  of these forms a writer uses". Whether the parameter is well-formed is Parquet's rule. The
+  `geoparquet-validator` native class also runs `/conf/native/crs`, `crs-projjson` and
+  `crs-default`; those have no requirement here (see `gaps.md`).
+* **The statements appear twice** (in Core and here), which is the one exception to "one statement,
+  one requirement". The alternative is to make Native the base class and have Core inherit it; that
+  states each sentence once and matches L78 ("foundation … layers … on top"), but it moves five
+  reviewed Core requirements to new identifiers, splits /req/core/geometry-column-type and changes
+  how Core's tests find the columns. **Open question for reviewers.**
+* **Covering and Distribution still inherit Core.** The two Distribution requirements (statistics,
+  spatial order) do not use the `geo` metadata, so a native-only file could satisfy them, but it
+  cannot claim the class today. **Open question for reviewers**, relevant for table formats.
 
 ## Prose that was moved or condensed
 
 * L5 Overview, L15, L19, L23, L27–L32, L42, L46, L60–L102 (CRS), L106–L108, L112–L118, L122–L136, L140–L196, L202: kept in Clause 6 with keywords removed (G3) and "field" → "member" (G2). The CRS narrative was reordered so that each paragraph precedes the requirement it introduces; no sentence was dropped except the duplicate restatements at L89 and L95 (covered by /req/core/crs-projjson and /req/core/crs-consistency).
-* L62 "(Writing that metadata is itself optional — a writer MAY emit only the native Parquet geospatial types — …)" and L89 "Such a file is not conformant GeoParquet 2.0": moved to a NOTE in Clause 6.7 and to Clause 8.2 "Files without GeoParquet metadata". The MAY is not a permission of this Standard because a file without `geo` metadata is outside its target (it fails /req/core/geo-metadata).
-* L93 reader MUST / SHOULD, L263–L279 Version Compatibility, L283 file extension rationale, L204–L259 OGC:CRS84 details: Clause 8 (informative) — see G5; the file-extension recommendation itself is /rec/core/file-extension.
+* L62 "(Writing that metadata is itself optional — a writer MAY emit only the native Parquet geospatial types — …)" and L89 "Such a file is not conformant GeoParquet 2.0": moved to a NOTE in Clause 6.7 and to Clause 10.3 "Files without GeoParquet metadata". The MAY is not a permission of Core because a file without `geo` metadata fails /req/core/geo-metadata; such a file is the subject of the Native Geospatial Types class (Clause 9, see above).
+* L93 reader MUST / SHOULD, L263–L279 Version Compatibility, L283 file extension rationale, L204–L259 OGC:CRS84 details: Clause 10 (informative) — see G5; the file-extension recommendation itself is /rec/core/file-extension.
 * L150–L176 edge algorithm descriptions: kept as the bullet list in Clause 6.10 with the external links reduced to citations; the algorithm values are also those of Parquet's `algorithm` parameter, which is now said explicitly.
 * L194 "It is not currently possible to specify M bounds without Z bounds": kept as prose.
 * The column metadata table (L48–L57) gains the `covering` row from PR #302 and drops the inline MUSTs (they are the requirements).
