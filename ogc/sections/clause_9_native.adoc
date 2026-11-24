@@ -1,0 +1,59 @@
+[[clause_native]]
+== Requirements Class Native Geospatial Types
+
+////
+Added after community issue #308 (opengeospatial/geoparquet). The 2.0.0 community specification
+keeps the `geo` metadata mandatory for a GeoParquet file and says of a file that carries only the
+native Parquet geospatial types: "Such a file is not conformant GeoParquet 2.0, but any GeoParquet
+2.0 reader should still be able to read it." The maintainers did not change that for 2.0.0, and
+agreed (Chris Holmes and Dewey Dunnington, 2026-11-04) that this OGC document defines a
+conformance class for such files, so that validators, catalogs and platforms have an identifier
+to refer to. This class does that and nothing more: it does not make such a file a GeoParquet
+file, and Core is unchanged.
+
+Its five requirements are the statements that the community specification makes about geometry
+columns independently of the `geo` metadata; they are the same statements as five Core
+requirements, applied to a file that has no `geo` entry. Core does not inherit this class, so the
+statements appear twice. The alternative, Core inheriting this class, would state them once but
+would move five reviewed Core requirements and split /req/core/geometry-column-type; it is left
+as a question for reviewers. See docs/ogc/CHANGES.md, section "Requirements Class Native
+Geospatial Types".
+////
+
+=== Overview
+
+include::../requirements/requirements_class_native.adoc[]
+
+Producing the native Parquet geospatial types is the foundation of GeoParquet 2.0: the geometry column is typed by the Parquet format itself, the coordinate reference system travels on the column in the `crs` parameter of the logical type, and the geospatial statistics of Parquet describe the extent and the geometry types of each row group (<<parquet-geospatial>>). The GeoParquet metadata layers additional, more explicit information on top. Writing that metadata is optional for a writer: a writer may emit only the native Parquet geospatial types, and the community specification encourages a writer that cannot generate PROJJSON to do so (<<geoparquet-community>>, <<geoparquet-compatibility>>). Table formats, data warehouses and general-purpose Parquet libraries that implement the Parquet geospatial types produce such files without any knowledge of GeoParquet.
+
+A file of this kind is not a GeoParquet file in the sense of this Standard, because the Core requirements class requires the `geo` entry (<<req_core_geo-metadata>>). GeoParquet 2.0 readers are nevertheless expected to read it (<<clause_implementation>>). This requirements class states what such a file has to satisfy, so that a validator, a catalog or a platform can identify it and refer to it. It applies to a Parquet file that does not carry GeoParquet metadata. A file that carries GeoParquet metadata is subject to the Core requirements class instead.
+
+In this requirements class, a geometry column is a column of the Parquet file annotated with the `GEOMETRY` or the `GEOGRAPHY` logical type.
+
+NOTE: The information that only the GeoParquet metadata can carry is not available for a file of this class: the primary geometry column when there are several, the polygon orientation, the coordinate epoch, the bounding box covering, and a coordinate reference system definition that is guaranteed to be inline PROJJSON. The geometry types and the bounding box of each column can be derived from the Parquet geospatial statistics, and the edge interpolation from the logical type.
+
+=== Geometry columns
+
+The requirements on geometry columns are those of <<clause_geometry_columns>>: the Parquet type, the position at the root of the schema, the repetition, the WKB encoding of the values and the coordinate axis order.
+
+include::../requirements/native/req_geometry-column-type.adoc[]
+
+include::../requirements/native/req_geometry-column-nesting.adoc[]
+
+include::../requirements/native/req_geometry-column-repetition.adoc[]
+
+include::../requirements/native/req_wkb.adoc[]
+
+include::../requirements/native/req_axis-order.adoc[]
+
+A file may contain more than one geometry column.
+
+=== Coordinate reference system
+
+The coordinate reference system of a geometry column is given by the `crs` parameter of its logical type. This Standard does not restrict which of the forms permitted by <<parquet-geospatial>> a writer uses, and therefore this class has no requirement on the parameter; when the parameter is unset, the coordinate reference system is OGC:CRS84, as specified by <<parquet-geospatial>>. The recommendations of the community specification on the form of the parameter apply to these files as they do to GeoParquet files (<<clause_crs>>).
+
+include::../recommendations/native/rec_crs-form.adoc[]
+
+include::../recommendations/native/rec_crs-unknown.adoc[]
+
+NOTE: A `crs` parameter in `<authority>:<code>`, `srid:<identifier>` or `projjson:<key_name>` form has to be resolved by the reader, against a registry or against the file metadata. Whether the parameter is well-formed is a matter of <<parquet-format>> and is not tested by this class.

@@ -18,7 +18,7 @@ The community specification states the following expectations on software that r
 
 === Files without GeoParquet metadata
 
-Producing the native Parquet geospatial types is the foundation of GeoParquet 2.0. A writer that cannot generate PROJJSON may write the `GEOMETRY` or `GEOGRAPHY` logical types with an `<authority>:<code>` `crs` parameter and omit the `geo` metadata. Such a file does not conform to this Standard, because the Core requirements class requires the `geo` entry, but any GeoParquet 2.0 reader is expected to read it: the Parquet logical type, its `crs` parameter and its statistics carry the information a reader needs.
+Producing the native Parquet geospatial types is the foundation of GeoParquet 2.0. A writer that cannot generate PROJJSON may write the `GEOMETRY` or `GEOGRAPHY` logical types with an `<authority>:<code>` `crs` parameter and omit the `geo` metadata. Such a file is not a GeoParquet file, because the Core requirements class requires the `geo` entry, but any GeoParquet 2.0 reader is expected to read it: the Parquet logical type, its `crs` parameter and its statistics carry the information a reader needs. The Native Geospatial Types requirements class (<<rc_native>>) states what such a file has to satisfy.
 
 === Version compatibility
 

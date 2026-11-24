@@ -50,9 +50,9 @@ NOTE: In this document an epoch is expressed as a decimal year in the Gregorian 
 
 === geometry column
 
-column of a GeoParquet file whose values are geometries
+column of a Parquet file whose values are geometries
 
-NOTE: In GeoParquet 2.0 every geometry column is annotated with the Parquet `GEOMETRY` or `GEOGRAPHY` logical type and is described by a column metadata object.
+NOTE: In GeoParquet 2.0 every geometry column is annotated with the Parquet `GEOMETRY` or `GEOGRAPHY` logical type. In a GeoParquet file it is also described by a column metadata object.
 
 === GeoParquet file
 

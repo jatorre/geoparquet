@@ -1,0 +1,9 @@
+// Source: geoparquet.md 2.0.0, Repetition (L23). Same statement as /req/core/geometry-column-repetition, for a file without GeoParquet metadata.
+[[req_native_geometry-column-repetition]]
+[requirement]
+====
+[%metadata]
+identifier:: /req/native/geometry-column-repetition
+part:: The repetition of a geometry column SHALL be `required` (exactly one value per row) or `optional` (zero or one value per row).
+part:: A geometry column SHALL NOT be `repeated`.
+====

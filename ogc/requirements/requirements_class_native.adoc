@@ -1,0 +1,15 @@
+[[rc_native]]
+[requirements_class]
+.Requirements Class Native Geospatial Types
+====
+[%metadata]
+identifier:: http://www.opengis.net/spec/geoparquet/2.0/req/native
+subject:: Parquet file
+requirement:: /req/native/geometry-column-type
+requirement:: /req/native/geometry-column-nesting
+requirement:: /req/native/geometry-column-repetition
+requirement:: /req/native/wkb
+requirement:: /req/native/axis-order
+recommendation:: /rec/native/crs-form
+recommendation:: /rec/native/crs-unknown
+====

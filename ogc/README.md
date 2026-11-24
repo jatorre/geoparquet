@@ -24,11 +24,12 @@ Board and to the OGC membership for a vote.
 | `sections/clause_0_front_material.adoc` … `clause_5_conventions.adoc` | Preface, abstract, submitters, scope, conformance, normative references, terms, conventions. |
 | `sections/clause_6_core.adoc` | Requirements Class **Core**: prose from `geoparquet.md` with the requirement, recommendation and permission blocks included at the point where the markdown states them. |
 | `sections/clause_7_covering.adoc` | Requirements Class **Bounding Box Covering** (the `covering` member and bounding box columns), from PR #302 as merged on 2026-09-07. |
-| `sections/clause_8_distribution.adoc` | Requirements Class **Cloud-Optimized Distribution** (proposal): the distribution best practices as an optional class that other specifications can cite. Two requirements (geospatial statistics, spatial ordering) and six recommendations (row group size, ZSTD, bbox covering, declared bbox column, partitioning, STAC). Sourced from the Portolan specification; numbers to be confirmed. |
-| `sections/clause_9_implementation_considerations.adoc` | Informative: expectations on readers, version compatibility, GeoParquet 1.x, OGC:CRS84 details. |
+| `sections/clause_8_distribution.adoc` | Requirements Class **Cloud-Optimized Distribution**: an optional class that other specifications can cite. Two requirements (geospatial statistics, spatial ordering) and no recommendations; the other distribution practices stay in the community guide, cited as informative. |
+| `sections/clause_9_native.adoc` | Requirements Class **Native Geospatial Types**: Parquet files that use the `GEOMETRY`/`GEOGRAPHY` logical types without `geo` metadata (community issue #308). Five requirements and two recommendations, the same statements as the corresponding Core ones. Such files are not GeoParquet files; the class gives them an identifier. |
+| `sections/clause_10_implementation_considerations.adoc` | Informative: expectations on readers, version compatibility, GeoParquet 1.x, OGC:CRS84 details. |
 | `sections/annex-a.adoc` | Abstract Test Suite (normative), includes `abstract_tests/ATS_class_*.adoc`. |
 | `sections/annex-b-example.adoc`, `annex-history.adoc`, `annex-bibliography.adoc` | Example metadata, revision history, bibliography. |
-| `requirements/requirements_class_core.adoc`, `requirements_class_covering.adoc`, `requirements_class_distribution.adoc` | The three requirements classes, listing their requirements, recommendations and permissions. |
+| `requirements/requirements_class_core.adoc`, `requirements_class_covering.adoc`, `requirements_class_distribution.adoc`, `requirements_class_native.adoc` | The four requirements classes, listing their requirements, recommendations and permissions. |
 | `requirements/<class>/req_<name>.adoc` | One file per requirement, identifier `/req/<class>/<name>`. Each starts with a `// Source:` comment pointing at the line of `geoparquet.md` it restates. |
 | `recommendations/<class>/rec_<name>.adoc`, `permissions/<class>/per_<name>.adoc` | One file per recommendation (`/rec/...`) and permission (`/per/...`). |
 | `abstract_tests/ATS_class_<class>.adoc`, `abstract_tests/<class>/ats_<name>.adoc` | One conformance class per requirements class; one abstract test per requirement, identifier `/conf/<class>/<name>`, targeting `/req/<class>/<name>`. Each test ends with a NOTE naming the `geoparquet-io` check that implements it. |
@@ -61,7 +62,8 @@ uploads the HTML, XML and error report as a workflow artifact.
 ## Editing conventions
 
 * One normative statement of `geoparquet.md` maps to exactly one requirement, recommendation or
-  permission here, and every requirement has exactly one abstract test. Keep this one-to-one
+  permission here (the Native Geospatial Types class is the exception: it restates five Core
+  requirements for files without `geo` metadata, see `docs/ogc/CHANGES.md`), and every requirement has exactly one abstract test. Keep this one-to-one
   mapping when the community specification changes.
 * Requirements use SHALL; the community specification uses MUST. Do not paraphrase beyond what
   is needed to make a statement testable; record any wording change in `docs/ogc/CHANGES.md`.

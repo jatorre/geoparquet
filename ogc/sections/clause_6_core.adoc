@@ -185,7 +185,7 @@ include::../recommendations/core/rec_parquet-crs-form.adoc[]
 
 include::../recommendations/core/rec_crs-srid-zero.adoc[]
 
-NOTE: A writer that cannot generate PROJJSON may write the native Parquet geospatial types with an `<authority>:<code>` `crs` parameter and omit the GeoParquet `geo` metadata altogether. Such a file is not a GeoParquet file in the sense of this Standard, although GeoParquet readers are expected to read it (<<clause_implementation>>). Any file that does carry GeoParquet metadata expresses its CRS there as inline PROJJSON.
+NOTE: A writer that cannot generate PROJJSON may write the native Parquet geospatial types with an `<authority>:<code>` `crs` parameter and omit the GeoParquet `geo` metadata altogether. Such a file is not a GeoParquet file in the sense of this Standard, although GeoParquet readers are expected to read it (<<clause_implementation>>); it can conform to the Native Geospatial Types requirements class (<<rc_native>>). Any file that does carry GeoParquet metadata expresses its CRS there as inline PROJJSON.
 
 [[clause_epoch]]
 ==== Epoch

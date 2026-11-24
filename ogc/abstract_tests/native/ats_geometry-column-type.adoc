@@ -1,0 +1,19 @@
+[[ats_native_geometry-column-type]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/native/geometry-column-type
+target:: /req/native/geometry-column-type
+test-purpose:: Verify that the file stores its geometries in columns annotated with a Parquet geospatial logical type.
+test-method::
++
+--
+1. Read the Parquet schema of the file and list every primitive column annotated with the `GEOMETRY` or the `GEOGRAPHY` logical type, at any depth of the schema. These are the geometry columns of the file.
+
+2. Verify that the list is not empty.
+
+3. Verify that the primitive type of each listed column is `BYTE_ARRAY`.
+
+NOTE: Implemented by `geoparquet-validator` test `/conf/native/geometry-column-type`; positive files are in `data/native_only/` of the `geoparquet-testing` corpus.
+--
+====

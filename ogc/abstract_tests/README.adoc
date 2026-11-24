@@ -5,6 +5,7 @@ This folder contains the Abstract Test Suite of the GeoParquet OGC Standard.
 * `<class>/ats_<name>.adoc` is one abstract test with identifier `/conf/<class>/<name>`, whose
   target is the requirement `/req/<class>/<name>`.
 
-The test subject is always a GeoParquet file. `docs/ogc/gaps.md` records, for each test, which
+The test subject is a GeoParquet file, except in the Native Geospatial Types class, where it is a
+Parquet file without GeoParquet metadata. `docs/ogc/gaps.md` records, for each test, which
 existing validator (GPQ, GDAL `validate_geoparquet.py`, the `geoparquet-testing` corpus)
 implements it, and which tests have no implementation yet.

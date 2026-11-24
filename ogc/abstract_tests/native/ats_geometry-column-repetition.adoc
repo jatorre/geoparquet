@@ -1,0 +1,17 @@
+[[ats_native_geometry-column-repetition]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/native/geometry-column-repetition
+target:: /req/native/geometry-column-repetition
+test-purpose:: Verify the repetition of geometry columns.
+test-method::
++
+--
+1. For each geometry column, read the repetition type of its schema element.
+
+2. Verify that the repetition type is `REQUIRED` or `OPTIONAL` and is not `REPEATED`.
+
+NOTE: Implemented by `geoparquet-validator` test `/conf/native/geometry-column-repetition`; positive files are in `data/native_only/` of the `geoparquet-testing` corpus.
+--
+====

@@ -8,9 +8,9 @@
 :draft: 0.1
 :external-id: http://www.opengis.net/doc/IS/geoparquet/2.0
 :docnumber: 24-013
-:received-date: 2026-09-03
-:issued-date: 2026-09-03
-:published-date: 2026-09-03
+:received-date: 2026-11-24
+:issued-date: 2026-11-24
+:published-date: 2026-11-24
 :fullname: Chris Holmes
 :fullname_2: Tim Schaub
 :fullname_3: Joris Van den Bossche
@@ -40,8 +40,14 @@ OGC Standard. Open items that the SWG has to confirm:
   editor, and who as contributor in clause 0? The Contributors table is a placeholder.
 * Clause 7 (Bounding Box Covering) restates pull request #302, merged into the community
   specification on 2026-09-07.
-* The normative reference to the GeoParquet JSON Schema points at the v2.0.0 release URL,
-  which exists only once 2.0.0 is tagged.
+* The document follows the community specification as tagged v2.0.0 on 2026-11-05 (plus the
+  link-only changes of #312). The normative reference to the GeoParquet JSON Schema points at
+  the v2.0.0 release URL.
+* Clause 9 (Native Geospatial Types) was added after community issue #308. Open question for
+  reviewers: keep it as a separate class that restates five Core requirements, or make Core
+  inherit it.
+* Clause 8 (Cloud-Optimized Distribution) keeps two requirements; its six recommendations were
+  removed (PR #304 discussion, 2026-09-08 to 2026-09-21).
 
 See docs/ogc/CHANGES.md for every place where the wording here differs from the markdown.
 ////
@@ -64,7 +70,9 @@ include::sections/clause_7_covering.adoc[]
 
 include::sections/clause_8_distribution.adoc[]
 
-include::sections/clause_9_implementation_considerations.adoc[]
+include::sections/clause_9_native.adoc[]
+
+include::sections/clause_10_implementation_considerations.adoc[]
 
 include::sections/annex-a.adoc[]
 

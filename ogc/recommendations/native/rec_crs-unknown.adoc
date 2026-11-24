@@ -1,0 +1,8 @@
+// Source: geoparquet.md 2.0.0, crs Parquet property (L91)
+[[rec_native_crs-unknown]]
+[recommendation]
+====
+[%metadata]
+identifier:: /rec/native/crs-unknown
+part:: When the coordinate reference system of a geometry column is undefined or unknown, the `crs` parameter of the column's `GEOMETRY` or `GEOGRAPHY` logical type SHOULD be the string `srid:0`.
+====

@@ -1,0 +1,21 @@
+[[ats_native_axis-order]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/native/axis-order
+target:: /req/native/axis-order
+test-purpose:: Verify the coordinate axis order of geometry values.
+test-method::
++
+--
+1. For each geometry column whose coordinate reference system has a latitude-longitude axis order (for example EPSG:4326), or whose `crs` parameter is unset (OGC:CRS84), decode a sample of geometry values.
+
+2. Verify that the first coordinate of each point is the longitude (easting) and the second is the latitude (northing), for example by checking that first coordinates lie within [-180, 180] and second coordinates within [-90, 90].
+
+NOTE: For coordinate reference systems with an easting-northing axis order this test is trivially satisfied.
+
+NOTE: Heuristic only, as for /conf/core/axis-order.
+
+NOTE: Implemented by `geoparquet-validator` test `/conf/native/axis-order`; positive files are in `data/native_only/` of the `geoparquet-testing` corpus.
+--
+====

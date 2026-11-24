@@ -1,0 +1,15 @@
+[[ats_native_geometry-column-nesting]]
+[abstract_test]
+====
+[%metadata]
+identifier:: /conf/native/geometry-column-nesting
+target:: /req/native/geometry-column-nesting
+test-purpose:: Verify that geometry columns are not nested.
+test-method::
++
+--
+1. For each geometry column, verify that its schema element is a direct child of the root of the Parquet schema and is not contained in a group field.
+
+NOTE: Implemented by `geoparquet-validator` test `/conf/native/geometry-column-nesting`; positive files are in `data/native_only/` of the `geoparquet-testing` corpus.
+--
+====

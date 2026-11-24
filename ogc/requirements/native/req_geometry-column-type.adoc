@@ -1,0 +1,8 @@
+// Source: geoparquet.md 2.0.0, Geometry columns (L15); crs Parquet property (L78, L89). Same statement as /req/core/geometry-column-type, for a file without GeoParquet metadata.
+[[req_native_geometry-column-type]]
+[requirement]
+====
+[%metadata]
+identifier:: /req/native/geometry-column-type
+part:: The geometries of the file SHALL be stored in one or more geometry columns: Parquet columns of primitive type `BYTE_ARRAY` annotated with the `GEOMETRY` or the `GEOGRAPHY` logical type as specified in <<parquet-logical-types>>.
+====

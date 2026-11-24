@@ -4,6 +4,7 @@
 
 * [[[geoparquet-community,GeoParquet community specification]]], GeoParquet community: GeoParquet Specification, version 2.0.0, `format-specs/geoparquet.md`. https://github.com/opengeospatial/geoparquet
 * [[[geoparquet-distribution,GeoParquet distribution best practices]]], GeoParquet community: Distributing GeoParquet, `format-specs/distributing-geoparquet.md`. https://github.com/opengeospatial/geoparquet
+* [[[geoparquet-compatibility,GeoParquet Parquet geospatial compatibility guide]]], GeoParquet community: Parquet Geospatial Compatibility, `format-specs/compatible-parquet.md`. https://github.com/opengeospatial/geoparquet
 * [[[geoparquet-testing,GeoParquet testing corpus]]], GeoParquet community: geoparquet-testing, conformance and negative test files for GeoParquet 2.0. https://github.com/geoparquet/geoparquet-testing
 * [[[geoarrow,GeoArrow]]], GeoArrow community: GeoArrow specification. https://geoarrow.org/
 * [[[OGC18-010r7,OGC 18-010r7]]]

@@ -1,0 +1,33 @@
+[[ats_native]]
+[conformance_class]
+====
+[%metadata]
+identifier:: http://www.opengis.net/spec/geoparquet/2.0/conf/native
+target:: http://www.opengis.net/spec/geoparquet/2.0/req/native
+classification:: Target Type:Parquet file
+abstract-test:: /conf/native/geometry-column-type
+abstract-test:: /conf/native/geometry-column-nesting
+abstract-test:: /conf/native/geometry-column-repetition
+abstract-test:: /conf/native/wkb
+abstract-test:: /conf/native/axis-order
+====
+
+==== Geometry column type
+
+include::./native/ats_geometry-column-type.adoc[]
+
+==== Geometry column nesting
+
+include::./native/ats_geometry-column-nesting.adoc[]
+
+==== Geometry column repetition
+
+include::./native/ats_geometry-column-repetition.adoc[]
+
+==== Wkb
+
+include::./native/ats_wkb.adoc[]
+
+==== Axis order
+
+include::./native/ats_axis-order.adoc[]

@@ -12,4 +12,5 @@ of the GeoParquet OGC Standard.
   `../abstract_tests/`.
 
 The files are included into the main document from `../sections/clause_6_core.adoc` and
-`../sections/clause_7_covering.adoc` with `include::../requirements/<class>/req_<name>.adoc[]`.
+`../sections/clause_7_covering.adoc`, `../sections/clause_8_distribution.adoc` and
+`../sections/clause_9_native.adoc` with `include::../requirements/<class>/req_<name>.adoc[]`.
