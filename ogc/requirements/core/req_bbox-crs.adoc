@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, bbox (L196)
+// Source: geoparquet.md 2.0.0, bbox (L197)
 [[req_core_bbox-crs]]
 [requirement]
 ====

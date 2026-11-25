@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, Coordinate axis order (L118)
+// Source: geoparquet.md 2.0.0, Coordinate axis order (L119)
 [[req_core_axis-order]]
 [requirement]
 ====

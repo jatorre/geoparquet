@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, File Extension (L283)
+// Source: geoparquet.md 2.0.0, File Extension (L327)
 [[rec_core_file-extension]]
 [recommendation]
 ====

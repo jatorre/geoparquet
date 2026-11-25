@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, Geometry columns (L15); crs Parquet property (L78, L89). Same statement as /req/core/geometry-column-type, for a file without GeoParquet metadata.
+// Source: geoparquet.md 2.0.0, Geometry columns (L15); crs Parquet property (L79, L90). Same statement as /req/core/geometry-column-type, for a file without GeoParquet metadata.
 [[req_native_geometry-column-type]]
 [requirement]
 ====

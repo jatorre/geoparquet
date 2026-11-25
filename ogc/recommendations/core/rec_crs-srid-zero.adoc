@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, crs (L72, L91)
+// Source: geoparquet.md 2.0.0, crs (L73, L92)
 [[rec_core_crs-srid-zero]]
 [recommendation]
 ====

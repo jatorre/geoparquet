@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, crs (L52, L72-L74, L91-L102)
+// Source: geoparquet.md 2.0.0, crs (L52, L73-L75, L92-L103)
 [[req_core_crs-consistency]]
 [requirement]
 ====

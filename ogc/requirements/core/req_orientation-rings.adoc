@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, orientation (L140-L142)
+// Source: geoparquet.md 2.0.0, orientation (L141-L143)
 [[req_core_orientation-rings]]
 [requirement]
 ====

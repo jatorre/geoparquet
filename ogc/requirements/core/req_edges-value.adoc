@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, edges (L54, L150-L178)
+// Source: geoparquet.md 2.0.0, edges (L54, L151-L179)
 [[req_core_edges-value]]
 [requirement]
 ====

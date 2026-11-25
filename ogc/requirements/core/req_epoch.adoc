@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, epoch (L56, L106-L108)
+// Source: geoparquet.md 2.0.0, epoch (L56, L107-L109)
 [[req_core_epoch]]
 [requirement]
 ====

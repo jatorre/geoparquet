@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, crs Parquet property (L84-L87)
+// Source: geoparquet.md 2.0.0, crs Parquet property (L85-L88)
 [[rec_core_parquet-crs-form]]
 [recommendation]
 ====

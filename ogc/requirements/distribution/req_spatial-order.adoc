@@ -1,4 +1,4 @@
-// Source: Portolan formats.md, GeoParquet: 'Rows MUST be spatially ordered so nearby features are nearby in the file'; distributing-geoparquet.md L20, L68-L79
+// Source: Portolan formats.md, GeoParquet: 'Rows MUST be spatially ordered so nearby features are nearby in the file'; distributing-geoparquet.md L20, L90-L101
 [[req_distribution_spatial-order]]
 [requirement]
 ====

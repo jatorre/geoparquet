@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, Coordinate axis order (L118). Same statement as /req/core/axis-order, for a file without GeoParquet metadata.
+// Source: geoparquet.md 2.0.0, Coordinate axis order (L119). Same statement as /req/core/axis-order, for a file without GeoParquet metadata.
 [[req_native_axis-order]]
 [requirement]
 ====

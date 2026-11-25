@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, bbox (L55, L186-L194); schema.json `oneOf` 4/6/8 items
+// Source: geoparquet.md 2.0.0, bbox (L55, L187-L195); schema.json `oneOf` 4/6/8 items
 [[req_core_bbox-array]]
 [requirement]
 ====

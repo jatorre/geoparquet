@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, orientation (L53, L140)
+// Source: geoparquet.md 2.0.0, orientation (L53, L141)
 [[req_core_orientation-value]]
 [requirement]
 ====

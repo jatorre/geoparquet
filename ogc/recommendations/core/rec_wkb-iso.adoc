@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, encoding (L112)
+// Source: geoparquet.md 2.0.0, encoding (L113)
 [[rec_core_wkb-iso]]
 [recommendation]
 ====

@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, Geometry columns (L15) and encoding (L50, L112-L114)
+// Source: geoparquet.md 2.0.0, Geometry columns (L15) and encoding (L50, L113-L115)
 [[req_core_geometry-column-type]]
 [requirement]
 ====

@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, orientation (L146) and edges (L180)
+// Source: geoparquet.md 2.0.0, orientation (L147) and edges (L181)
 [[rec_core_orientation-non-planar]]
 [recommendation]
 ====

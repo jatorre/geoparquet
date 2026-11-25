@@ -21,6 +21,9 @@ crosswalk (June 2024) was used as a starting checklist only.
 | Parquet format | `apache/parquet-format` tag `apache-parquet-format-2.12.0`, `LogicalTypes.md` and `Geospatial.md` |
 
 Line numbers below (`L15`) refer to `geoparquet.md` at the given tag.
+For the 2.0 column this is **rc.1**. In the tagged `v2.0.0` file, rc.1 lines L1–L56 are
+unchanged, L57–L197 are one line lower (the `covering` row) and L198 onwards are 44 lines lower
+(the covering sections of PR #302). `CHANGES.md` and the `// Source:` comments use the tag's numbers.
 
 ## How to read the table
 

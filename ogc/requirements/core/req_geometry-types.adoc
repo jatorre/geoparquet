@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, geometry_types (L51, L122-L136); schema.json `uniqueItems`, item `pattern`
+// Source: geoparquet.md 2.0.0, geometry_types (L51, L123-L137); schema.json `uniqueItems`, item `pattern`
 [[req_core_geometry-types]]
 [requirement]
 ====

@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, Media Type (L287)
+// Source: geoparquet.md 2.0.0, Media Type (L331)
 [[req_core_media-type]]
 [requirement]
 ====

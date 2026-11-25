@@ -1,4 +1,4 @@
-// Source: geoparquet.md 2.0.0, bbox (L186)
+// Source: geoparquet.md 2.0.0, bbox (L187)
 [[req_core_bbox-extent]]
 [requirement]
 ====

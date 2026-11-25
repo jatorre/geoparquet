@@ -101,7 +101,7 @@ that the community specification (and therefore the OGC text) does not require.
 
 | gpio check | What it enforces | Status in the spec / OGC text |
 | --- | --- | --- |
-| `v2_crs_in_parquet_type_*` | Non-default CRS must be **inline PROJJSON** in the Parquet `crs` parameter | The spec allows `<authority>:<code>` too (L84–L87, `/rec/core/parquet-crs-form`). gpio is stricter; worth a discussion. |
+| `v2_crs_in_parquet_type_*` | Non-default CRS must be **inline PROJJSON** in the Parquet `crs` parameter | The spec allows `<authority>:<code>` too (L85–L88, `/rec/core/parquet-crs-form`). gpio is stricter; worth a discussion. |
 | `v2_edges_consistency_*` | `edges` must equal the GEOGRAPHY `algorithm`; a GEOGRAPHY column with no `edges` fails (default planar vs spherical); non-planar `edges` on GEOMETRY fails | Not in the spec (SI-12). gpio's behaviour is a good candidate wording for the fix. |
 | `epoch_valid_*` | `epoch` on a datum ensemble fails; on a static CRS warns | Not in the spec (SI-19). |
 | `version_known`, `version_features_match` | Version string is `1.x`/`2.x`; 1.x files must not use `covering` (pre-1.1) or native types | Version compatibility is informative (Clause 10). |
